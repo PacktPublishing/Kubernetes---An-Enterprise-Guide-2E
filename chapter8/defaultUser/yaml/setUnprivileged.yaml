@@ -1,0 +1,20 @@
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
+  name: set-unprivileged
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Pod"]
+    versions: ["v1"]
+  match:
+    scope: Namespaced
+    excludedNamespaces:
+    - kube-system
+  location: "spec.containers[image:*].securityContext.privileged"
+  parameters:
+    assign:
+      value:  false
+    pathTests:
+      - subPath: "spec.containers[image:*].securityContext.privileged"
+        condition: MustNotExist

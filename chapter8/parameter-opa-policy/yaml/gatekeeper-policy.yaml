@@ -1,0 +1,19 @@
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sAllowedRegistries
+metadata:
+  name: restrict-openunison-registries
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+      - apiGroups: ["apps"]
+        kinds:
+        - StatefulSet
+        - Deployment
+      - apiGroups: ["batch"]
+        kinds:
+        - CronJob
+    namespaces: ["openunison"]
+  parameters:
+    registries: ["docker.io/tremolosecurity/"]

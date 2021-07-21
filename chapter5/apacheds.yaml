@@ -1,0 +1,216 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: activedirectory
+spec:
+  finalizers:
+  - kubernetes
+---
+apiVersion: v1
+data:
+  apacheds.jks: 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
+kind: Secret
+metadata:
+  name: apacheds-ks
+  namespace: activedirectory
+type: Opaque
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app.kubernetes.io/instance: apacheds
+  name: test-users
+  namespace: activedirectory
+data:
+  data.ldif: |-
+    dn: DC=domain,DC=com
+    objectClass: domain
+    dc: domain
+
+    dn: ou=Users,DC=domain,DC=com
+    objectClass: organizationalUnit
+    ou: users
+
+
+    dn: ou=Groups,DC=domain,DC=com
+    objectClass: organizationalUnit
+    ou: Groups
+
+
+    dn: cn=ou_svc_account,ou=Users,DC=domain,DC=com
+    objectClass: user
+    cn: ou_svc_account
+    givenName: ou
+    sn: svc
+    samAccountName: ou_svc_account
+    userPassword: start123
+
+    dn: cn=pipeline_svc_account,ou=Users,DC=domain,DC=com
+    objectClass: user
+    cn: pipeline_svc_account
+    givenName: pipeline
+    sn: svc
+    samAccountName: pipeline_svc_account
+    userPassword: start123
+
+    dn: cn=mmosley,ou=Users,DC=domain,DC=com
+    objectClass: user
+    cn: mmosley
+    givenName: Matt
+    sn: Mosley
+    samAccountName: mmosley
+    mail: mmosley@tremolo.dev
+    title: Tester
+    telephoneNumber: 123-456-7890
+    userPassword: start123
+
+    dn: cn=jjackson,ou=Users,DC=domain,DC=com
+    objectClass: user
+    cn: jjackson
+    givenName: Jennifer
+    sn: Jackson
+    samAccountName: jjackson
+    mail: jjackson@tremolo.dev
+    title: Tester
+    telephoneNumber: 123-456-7890
+    userPassword: start123
+
+   
+
+    dn: cn=k8s-cluster-admins,ou=Groups,DC=domain,DC=com
+    objectClass: group
+    cn: k8s-cluster-admins
+    member: cn=mmosley,ou=Users,DC=domain,DC=com
+    member: cn=pipeline_svc_account,ou=Users,DC=domain,DC=com
+
+    dn: cn=group2,ou=Groups,DC=domain,DC=com
+    objectClass: group
+    cn: group2
+    member: cn=mmosley,ou=Users,DC=domain,DC=com
+    
+    dn: cn=k8s-create-ns,ou=groups,dc=domain,dc=com
+    objectClass: group
+    cn: k8s-create-ns
+    member: cn=jjackson,ou=Users,DC=domain,DC=com
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: apacheds
+    app.kubernetes.io/instance: apacheds
+  name: apacheds
+  namespace: activedirectory
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: apacheds
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: apacheds
+    spec:
+      containers:
+      - env:
+        - name: JAVA_OPTS
+          value: -Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom
+            -Xms2048m -Xmx2048m
+        - name: fortriggerupdates
+          value: changeme
+        - name: APACHEDS_ROOT_PASSWORD
+          value: start123
+        - name: APACHEDS_TLS_KS_PWD
+          value: start123
+        - name: DN
+          value: DC=domain,DC=com
+        - name: OBJECT_CLASS
+          value: domain
+        - name: LDIF_FILE
+          value: /etc/apacheds-data/data.ldif
+        image: docker.io/tremolosecurity/apacheds:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          failureThreshold: 10
+          initialDelaySeconds: 120
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 10389
+          timeoutSeconds: 10
+        name: apacheds
+        ports:
+        - containerPort: 10389
+          name: ldap
+          protocol: TCP
+        - containerPort: 10636
+          name: ldaps
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: 10389
+          timeoutSeconds: 10
+        resources:
+          limits:
+            memory: 1G
+          requests:
+            memory: 1G
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/apacheds
+          name: secret-volume
+          readOnly: true
+        - mountPath: /etc/apacheds-data
+          name: data-volume
+          readOnly: true
+        - mountPath: /var/apacheds
+          name: local-data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: secret-volume
+        secret:
+          defaultMode: 420
+          secretName: apacheds-ks
+      - configMap:
+          defaultMode: 420
+          name: test-users
+        name: data-volume
+      - emptyDir: {}
+        name: local-data
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: apacheds
+    app.kubernetes.io/instance: apacheds
+  name: apacheds
+  namespace: activedirectory
+spec:
+  ports:
+  - port: 10636
+    protocol: TCP
+    targetPort: 10636
+  selector:
+    app: apacheds
+  sessionAffinity: None
+  type: ClusterIP

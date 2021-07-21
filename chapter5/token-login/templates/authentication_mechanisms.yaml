@@ -1,0 +1,11 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: AuthenticationMechanism
+metadata:
+  name: basic
+  namespace: {{ .Release.Namespace }}
+spec:
+  className: com.tremolosecurity.proxy.auth.BasicAuth
+  uri: "/auth/basic"
+  init: {}
+  secretParams: []

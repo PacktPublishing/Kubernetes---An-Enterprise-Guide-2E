@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-with-no-quota
+spec: {}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ns-with-quota
+spec: {}
+---
+kind: ResourceQuota
+apiVersion: v1
+metadata:
+  name: memory-quota
+  namespace: ns-with-quota
+spec:
+  hard:
+    requests.memory: 1G
+    limits.memory: 1G
