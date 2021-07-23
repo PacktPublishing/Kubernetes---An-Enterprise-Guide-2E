@@ -1,6 +1,7 @@
 #!/bin/bash
 
-for each in $(kubectl get ns -o jsonpath="{.items[*].metadata.name}" | grep -v gatekeeper-system);
+for each in $(kubectl get ns | tail -n +2 | awk '{print $1}' | grep -v gatekeeper-system);
 do
+  echo "$each"
   kubectl delete pods -n $each
 done
