@@ -180,6 +180,8 @@ spec:
           readOnly: true
         - mountPath: /var/apacheds
           name: local-data
+        - mountPath: /tmp
+          name: tmp
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -196,6 +198,8 @@ spec:
         name: data-volume
       - emptyDir: {}
         name: local-data
+      - emptyDir: {}
+        name: tmp
 ---
 apiVersion: v1
 kind: Service
