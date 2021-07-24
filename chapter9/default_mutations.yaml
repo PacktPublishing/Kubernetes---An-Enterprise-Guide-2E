@@ -124,3 +124,17 @@ spec:
       condition: MustNotExist
     assign:
       value: [3000]
+---
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
+  name: k8spspcapabilities
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Pod"]
+    versions: ["v1"]
+  location: "spec.containers[name:*].securityContext.capabilities.drop"
+  parameters:
+    assign:
+      value: ["all"] # drop all capabilities by default
