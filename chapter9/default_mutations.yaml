@@ -8,6 +8,10 @@ spec:
   - groups: [""]
     kinds: ["Pod"]
     versions: ["v1"]
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
   location: "spec.containers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
     pathTests:
@@ -26,6 +30,10 @@ spec:
     kinds: ["Pod"]
     versions: ["v1"]
   location: "spec.securityContext.fsGroup"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
   parameters:
     pathTests:
     - subPath: "spec.securityContext.fsGroup"
@@ -43,6 +51,10 @@ spec:
     kinds: ["Pod"]
     versions: ["v1"]
   location: "spec.containers[name:*].securityContext.runAsNonRoot"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
   parameters:
     pathTests:
       - subPath: "spec.containers[name:*].securityContext.runAsNonRoot"
@@ -60,6 +72,10 @@ spec:
     kinds: ["Pod"]
     versions: ["v1"]
   location: "spec.containers[name:*].securityContext.runAsGroup"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsGroup"
@@ -77,6 +93,10 @@ spec:
     kinds: ["Pod"]
     versions: ["v1"]
   location: "spec.containers[name:*].securityContext.runAsUser"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsUser"
@@ -94,6 +114,10 @@ spec:
     kinds: ["Pod"]
     versions: ["v1"]
   location: "spec.securityContext.supplementalGroups"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
   parameters:
     pathTests:
     - subPath: "spec.securityContext.supplementalGroups"
