@@ -21,7 +21,8 @@ spec:
         kinds: ["Pod"]
     excludedNamespaces: ["kube-system","calico-system"]
   parameters:
-    requiredDropCapabilities: ["DROP_ALL"]
+    requiredDropCapabilities: ["all"]
+    allowedCapabilities: []
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sPSPForbiddenSysctls
