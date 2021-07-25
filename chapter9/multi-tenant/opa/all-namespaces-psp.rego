@@ -12,7 +12,7 @@ checkForPrivEscalationPolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowPrivilegeEscalationContainer[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowPrivilegeEscalationContainer[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 # capabilities
@@ -26,7 +26,7 @@ checkForCapabilitiesPolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPCapabilities[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPCapabilities[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 # sysctls
@@ -40,7 +40,7 @@ checkForSysCtlsPolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPForbiddenSysctls[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPForbiddenSysctls[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 
@@ -55,7 +55,7 @@ checkHostFileSystemPolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostFilesystem[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostFilesystem[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 
@@ -70,7 +70,7 @@ checkHostNamespacePolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNamespace[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNamespace[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 # host network
@@ -84,7 +84,7 @@ checkHostNetworkPolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNetworkingPorts[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNetworkingPorts[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 # priv container
@@ -98,7 +98,7 @@ checkPrivContainerPolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPPrivilegedContainer[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPPrivilegedContainer[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 # proc mount
@@ -112,7 +112,7 @@ checkProcMountPolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPProcMount[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPProcMount[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 # allowed users
@@ -126,7 +126,7 @@ checkAllowedUsersPolicy {
                               data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowedUsers[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                               policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowedUsers[j] ]
 
-    count(policies_for_namespace) > 0
+    count(policies_for_namespace)  == 0
 }
 
 
