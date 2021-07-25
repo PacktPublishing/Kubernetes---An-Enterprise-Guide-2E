@@ -6,12 +6,7 @@ violation[{"msg": msg, "details": {}}] {
 }
 
 invalidMemoryRequests {
-    data.
-      inventory
-      .namespace
-      [input.review.object.metadata.namespace]
-      ["v1"]
-      ["ResourceQuota"]
+    data.inventory.namespace[input.review.object.metadata.namespace]["v1"]["ResourceQuota"]
     
     containers := input.review.object.spec.containers
     

@@ -1,0 +1,231 @@
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowPrivilegeEscalationContainer
+metadata:
+  name: system-privilege-escalation-deny-all
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - tigera-operator
+    - openunison
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: system-capabilities-drop-all
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - tigera-operator
+    - openunison
+  parameters:
+    requiredDropCapabilities: ["all"]
+    allowedCapabilities: []
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPForbiddenSysctls
+metadata:
+  name: system-psp-forbid-all-sysctls
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - tigera-operator
+    - openunison
+    - ingress-nginx
+  parameters:
+    forbiddenSysctls:
+    - "*"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostFilesystem
+metadata:
+  name: system-psp-deny-host-filesystem
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - openunison
+    - ingress-nginx
+  parameters:
+    allowedHostPaths: []
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostNamespace
+metadata:
+  name: system-psp-bloack-all-host-namespace
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - openunison
+    - tigera-operator
+    - ingress-nginx
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostNetworkingPorts
+metadata:
+  name: system-psp-deny-all-host-network-ports
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - openunison
+    - ingress-nginx
+  parameters:
+    hostNetwork: false
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPPrivilegedContainer
+metadata:
+  name: system-psp-deny-all-privileged-container
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - openunison
+    - tigera-operator
+    - ingress-nginx
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPProcMount
+metadata:
+  name: system-psp-proc-mount-default
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - openunison
+    - tigera-operator
+    - ingress-nginx
+  parameters:
+    procMount: Default
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowedUsers
+metadata:
+  name: system-psp-pods-allowed-user-ranges
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - default
+    - kube-node-lease
+    - kube-public
+    - kubernetes-dashboard
+    - local-path-storage
+    - openunison
+    - tigera-operator
+    - ingress-nginx
+  parameters:
+    runAsUser:
+      rule: MustRunAs # MustRunAsNonRoot # RunAsAny 
+      ranges:
+        - min: 100
+          max: 4294967294
+    runAsGroup:
+      rule: MustRunAs # MayRunAs # RunAsAny 
+      ranges:
+        - min: 100
+          max: 4294967294
+    supplementalGroups:
+      rule: MustRunAs # MayRunAs # RunAsAny 
+      ranges:
+        - min: 100
+          max: 4294967294
+    fsGroup:
+      rule: MustRunAs # MayRunAs # RunAsAny 
+      ranges:
+        - min: 100
+          max: 4294967294
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostFilesystem
+metadata:
+  name: psp-tigera-operator-allow-host-filesystem
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tigera-operator"]
+  parameters:
+    allowedHostPaths:
+    - pathPrefix: "/var/lib/calico"
+      readOnly: false
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: capabilities-ingress-nginx
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["ingress-nginx"]
+  parameters:
+    requiredDropCapabilities: ["all"]
+    allowedCapabilities: ["NET_BIND_SERVICE"]
+
+    

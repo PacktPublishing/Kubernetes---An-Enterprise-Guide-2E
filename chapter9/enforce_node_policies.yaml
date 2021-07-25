@@ -1,0 +1,31 @@
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostFilesystem
+metadata:
+  name: psp-tigera-operator-allow-host-filesystem
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tigera-operator"]
+  parameters:
+    allowedHostPaths:
+    - pathPrefix: "/var/lib/calico"
+      readOnly: false
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: capabilities-ingress-nginx
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["ingress-nginx"]
+  parameters:
+    requiredDropCapabilities: ["all"]
+    allowedCapabilities: ["NET_BIND_SERVICE"]
+
+    

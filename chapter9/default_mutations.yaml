@@ -134,6 +134,10 @@ spec:
   - groups: [""]
     kinds: ["Pod"]
     versions: ["v1"]
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
   location: "spec.containers[name:*].securityContext.capabilities.drop"
   parameters:
     assign:

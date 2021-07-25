@@ -1,0 +1,138 @@
+package k8senforcepsppernamespace
+
+# priv escalation
+violation[{"msg": msg, "details": {}}] {
+  checkForPrivEscalationPolicy
+  msg := "No applicable K8sPSPAllowPrivilegeEscalationContainer for this namespace"
+}
+
+checkForPrivEscalationPolicy {
+
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowPrivilegeEscalationContainer[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowPrivilegeEscalationContainer[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+# capabilities
+violation[{"msg": msg, "details": {}}] {
+  checkForCapabilitiesPolicy
+  msg := "No applicable K8sPSPCapabilities for this namespace"
+}
+
+checkForCapabilitiesPolicy {
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPCapabilities[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPCapabilities[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+# sysctls
+violation[{"msg": msg, "details": {}}] {
+  checkForSysCtlsPolicy
+  msg := "No applicable K8sPSPForbiddenSysctls for this namespace"
+}
+
+checkForSysCtlsPolicy {
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPForbiddenSysctls[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPForbiddenSysctls[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+
+# host filesystem
+violation[{"msg": msg, "details": {}}] {
+  checkHostFileSystemPolicy
+  msg := "No applicable K8sPSPHostFilesystem for this namespace"
+}
+
+checkHostFileSystemPolicy {
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostFilesystem[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostFilesystem[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+
+# hostnamespace
+violation[{"msg": msg, "details": {}}] {
+  checkHostNamespacePolicy
+  msg := "No applicable K8sPSPHostNamespace for this namespace"
+}
+
+checkHostNamespacePolicy {
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNamespace[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNamespace[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+# host network
+violation[{"msg": msg, "details": {}}] {
+  checkHostNetworkPolicy
+  msg := "No applicable K8sPSPHostNetworkingPorts for this namespace"
+}
+
+checkHostNetworkPolicy {
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNetworkingPorts[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNetworkingPorts[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+# priv container
+violation[{"msg": msg, "details": {}}] {
+  checkPrivContainerPolicy
+  msg := "No applicable K8sPSPPrivilegedContainer for this namespace"
+}
+
+checkPrivContainerPolicy {
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPPrivilegedContainer[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPPrivilegedContainer[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+# proc mount
+violation[{"msg": msg, "details": {}}] {
+  checkProcMountPolicy
+  msg := "No applicable K8sPSPProcMount for this namespace"
+}
+
+checkProcMountPolicy {
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPProcMount[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPProcMount[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+# allowed users
+violation[{"msg": msg, "details": {}}] {
+  checkAllowedUsersPolicy
+  msg := "No applicable K8sPSPAllowedUsers for this namespace"
+}
+
+checkAllowedUsersPolicy {
+    policies_for_namespace = [policy_for_namespace |
+                              data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowedUsers[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                              policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowedUsers[j] ]
+
+    count(policies_for_namespace) > 0
+}
+
+
+
+
+
+
+
+ 

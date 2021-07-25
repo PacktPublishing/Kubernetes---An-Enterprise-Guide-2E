@@ -1,0 +1,387 @@
+{
+    "namespace": {
+        "ns-with-no-quota": {},
+        "ns-with-quota": {
+            "v1": {
+                "ResourceQuota": {
+                    "memory-quota": {
+                        "kind": "ResourceQuota",
+                        "apiVersion": "v1",
+                        "metadata": {
+                            "name": "memory-quota",
+                            "namespace": "ns-with-quota"
+                        },
+                        "spec": {
+                            "hard": {
+                                "requests.memory": "1G",
+                                "limits.memory": "1G"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "cluster": {
+        "constraints.gatekeeper.sh/v1beta1": {
+            "K8sPSPAllowPrivilegeEscalationContainer": {
+                "privilege-escalation-deny-all": {
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPAllowPrivilegeEscalationContainer",
+                    "metadata": {
+                        "annotations": {},
+                        "creationTimestamp": "2021-07-24T17:56:31Z",
+                        "generation": 2,
+                        "name": "privilege-escalation-deny-all",
+                        "resourceVersion": "266073",
+                        "uid": "e67352fd-bb66-4dbc-838c-c12007932b29"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "status": {}
+                }
+            },
+            "K8sPSPCapabilities": {
+                "capabilities-drop-all": {
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPCapabilities",
+                    "metadata": {
+                        "annotations": {},
+                        "creationTimestamp": "2021-07-24T17:56:31Z",
+                        "generation": 4,
+                        "name": "capabilities-drop-all",
+                        "resourceVersion": "270391",
+                        "uid": "a8fa32ac-2b9a-4518-bd83-a174318b87c9"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "allowedCapabilities": [],
+                            "requiredDropCapabilities": [
+                                "all"
+                            ]
+                        }
+                    },
+                    "status": {}
+                }
+            },
+            "K8sPSPForbiddenSysctls": {
+                "psp-forbid-all-sysctls": {
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPForbiddenSysctls",
+                    "metadata": {
+                        "annotations": {},
+                        "creationTimestamp": "2021-07-24T17:56:31Z",
+                        "generation": 1,
+                        "name": "psp-forbid-all-sysctls",
+                        "resourceVersion": "270928",
+                        "uid": "3bf16dc7-ca6f-4be4-8c3f-7f82845b30bf"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "forbiddenSysctls": [
+                                "*"
+                            ]
+                        }
+                    },
+                    "status": {}
+                }
+            },
+            "K8sPSPHostFilesystem":{
+                "psp-deny-host-filesystem":{
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPHostFilesystem",
+                    "metadata": {
+                        "annotations": {
+                            
+                        },
+                        "creationTimestamp": "2021-07-24T17:56:31Z",
+                        "generation": 2,
+                        "name": "psp-deny-host-filesystem",
+                        "resourceVersion": "271470",
+                        "uid": "9e976cb0-d003-425d-b89f-07c6852b07df"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "allowedHostPaths": []
+                        }
+                    },
+                    "status": {}
+                }
+            },
+            "K8sPSPHostNamespace": {
+                "psp-bloack-all-host-namespace": {
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPHostNamespace",
+                    "metadata": {
+                        "annotations": {
+                            
+                        },
+                        "creationTimestamp": "2021-07-24T17:56:32Z",
+                        "generation": 1,
+                        "name": "psp-bloack-all-host-namespace",
+                        "resourceVersion": "272370",
+                        "uid": "80de6407-87e1-4c9a-b6cb-f94bf6776e66"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "status": {}
+                }
+            },
+            "K8sPSPHostNetworkingPorts" : {
+                "psp-deny-all-host-network-ports": {
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPHostNetworkingPorts",
+                    "metadata": {
+                        "annotations": {
+                            
+                        },
+                        "creationTimestamp": "2021-07-24T17:56:32Z",
+                        "generation": 2,
+                        "name": "psp-deny-all-host-network-ports",
+                        "resourceVersion": "272730",
+                        "uid": "144070b1-6d41-4081-908c-7ffafc6e6cf0"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "hostNetwork": false
+                        }
+                    },
+                    "status": {}
+                }
+            },
+            "K8sPSPPrivilegedContainer":{
+                "psp-deny-all-privileged-container":{
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPPrivilegedContainer",
+                    "metadata": {
+                        "annotations": {
+            
+                        },
+                        "creationTimestamp": "2021-07-24T17:56:32Z",
+                        "generation": 1,
+                        "name": "psp-deny-all-privileged-container",
+                        "resourceVersion": "273092",
+                        "uid": "6a9b505e-19c4-4748-b1d6-871535e19b35"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        }
+                    },
+                    "status": {}
+                }
+            },
+            "K8sPSPProcMount":{
+                "psp-proc-mount-default":{
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPProcMount",
+                    "metadata": {
+                        "annotations": {
+                            
+                        },
+                        "creationTimestamp": "2021-07-24T17:56:32Z",
+                        "generation": 1,
+                        "name": "psp-proc-mount-default",
+                        "resourceVersion": "273633",
+                        "uid": "85e753b2-f51c-4df6-a1cf-6e8c6215624b"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "procMount": "Default"
+                        }
+                    },
+                    "status": {}
+                }
+            },
+            "K8sPSPAllowedUsers": {
+                "psp-pods-allowed-user-ranges": {
+                    "apiVersion": "constraints.gatekeeper.sh/v1beta1",
+                    "kind": "K8sPSPAllowedUsers",
+                    "metadata": {
+                        "annotations": {
+                            
+                        },
+                        "creationTimestamp": "2021-07-24T17:56:33Z",
+                        "generation": 1,
+                        "name": "psp-pods-allowed-user-ranges",
+                        "resourceVersion": "273804",
+                        "uid": "180dd218-904c-452a-bd50-7e64751b1117"
+                    },
+                    "spec": {
+                        "match": {
+                            "namespaces": [
+                                "ns-with-psp"
+                            ],
+                            "kinds": [
+                                {
+                                    "apiGroups": [
+                                        ""
+                                    ],
+                                    "kinds": [
+                                        "Pod"
+                                    ]
+                                }
+                            ]
+                        },
+                        "parameters": {
+                            "fsGroup": {
+                                "ranges": [
+                                    {
+                                        "max": 4294967294,
+                                        "min": 100
+                                    }
+                                ],
+                                "rule": "MustRunAs"
+                            },
+                            "runAsGroup": {
+                                "ranges": [
+                                    {
+                                        "max": 4294967294,
+                                        "min": 100
+                                    }
+                                ],
+                                "rule": "MustRunAs"
+                            },
+                            "runAsUser": {
+                                "ranges": [
+                                    {
+                                        "max": 4294967294,
+                                        "min": 100
+                                    }
+                                ],
+                                "rule": "MustRunAs"
+                            },
+                            "supplementalGroups": {
+                                "ranges": [
+                                    {
+                                        "max": 4294967294,
+                                        "min": 100
+                                    }
+                                ],
+                                "rule": "MustRunAs"
+                            }
+                        }
+                    },
+                    "status": {}
+                }
+            }
+        }
+    }
+}
