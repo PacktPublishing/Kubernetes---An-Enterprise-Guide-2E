@@ -21,12 +21,12 @@ spec:
 
               checkForPrivEscalationPolicy {
 
-                  #policies_for_namespace = [policy_for_namespace |
-                  #                          data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowPrivilegeEscalationContainer[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
-                  #                          policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowPrivilegeEscalationContainer[j] ]
-                  #
-                  #count(policies_for_namespace) > 0
-                  1 == 1
+                  policies_for_namespace = [policy_for_namespace |
+                                            data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowPrivilegeEscalationContainer[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
+                                            policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowPrivilegeEscalationContainer[j] ]
+                  
+                  count(policies_for_namespace) == 0
+                  
               }
 
               # capabilities
@@ -40,7 +40,7 @@ spec:
                                             data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPCapabilities[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                                             policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPCapabilities[j] ]
 
-                  count(policies_for_namespace) > 0
+                  count(policies_for_namespace) == 0
               }
 
               # sysctls
@@ -54,7 +54,7 @@ spec:
                                             data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPForbiddenSysctls[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                                             policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPForbiddenSysctls[j] ]
 
-                  count(policies_for_namespace) > 0
+                  count(policies_for_namespace) == 0
               }
 
 
@@ -69,7 +69,7 @@ spec:
                                             data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostFilesystem[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                                             policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostFilesystem[j] ]
 
-                  count(policies_for_namespace) > 0
+                  count(policies_for_namespace) == 0
               }
 
 
@@ -84,7 +84,7 @@ spec:
                                             data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNamespace[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                                             policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNamespace[j] ]
 
-                  count(policies_for_namespace) > 0
+                  count(policies_for_namespace) == 0
               }
 
               # host network
@@ -98,7 +98,7 @@ spec:
                                             data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNetworkingPorts[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                                             policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPHostNetworkingPorts[j] ]
 
-                  count(policies_for_namespace) > 0
+                  count(policies_for_namespace) == 0
               }
 
               # priv container
@@ -112,7 +112,7 @@ spec:
                                             data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPPrivilegedContainer[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                                             policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPPrivilegedContainer[j] ]
 
-                  count(policies_for_namespace) > 0
+                  count(policies_for_namespace) == 0
               }
 
               # proc mount
@@ -126,7 +126,7 @@ spec:
                                             data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPProcMount[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                                             policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPProcMount[j] ]
 
-                  count(policies_for_namespace) > 0
+                  count(policies_for_namespace) == 0
               }
 
               # allowed users
@@ -140,7 +140,7 @@ spec:
                                             data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowedUsers[j].spec.match.namespaces[_] == input.review.object.metadata.namespace ;
                                             policy_for_namespace = data.inventory.cluster["constraints.gatekeeper.sh/v1beta1"].K8sPSPAllowedUsers[j] ]
 
-                  count(policies_for_namespace) > 0
+                  count(policies_for_namespace) == 0
               }
 
 
