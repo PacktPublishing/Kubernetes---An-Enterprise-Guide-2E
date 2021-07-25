@@ -1,7 +1,7 @@
 apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
-  name: require-psp-for-namespace
+  name: requirepspfornamespace
 spec:
   crd:
     spec:

@@ -1,7 +1,7 @@
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sRequirePSPForNamespace
 metadata:
-  name: require-psp-for-namespace
+  name: requirepspfornamespace
 spec:
   match:
     kinds:
