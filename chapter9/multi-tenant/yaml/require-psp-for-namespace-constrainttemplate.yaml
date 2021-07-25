@@ -1,7 +1,7 @@
 apiVersion: templates.gatekeeper.sh/v1beta1
 kind: ConstraintTemplate
 metadata:
-  name: requirepspfornamespace
+  name: k8srequirepspfornamespace
 spec:
   crd:
     spec:
