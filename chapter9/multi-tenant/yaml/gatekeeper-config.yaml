@@ -1,0 +1,36 @@
+apiVersion: config.gatekeeper.sh/v1alpha1
+kind: Config
+metadata:
+  name: config
+  namespace: "gatekeeper-system"
+spec:
+  sync:
+    syncOnly:
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPAllowPrivilegeEscalationContainer"
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPCapabilities"
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPForbiddenSysctls"
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPHostFilesystem"
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPHostNamespace"
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPHostNetworkingPorts"
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPPrivilegedContainer"
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPProcMount"
+      - group: "constraints.gatekeeper.sh"
+        version: "v1beta1"
+        kind: "K8sPSPAllowedUsers"
+      
