@@ -73,6 +73,16 @@ services:
   token_request_audience: api
   token_request_expiration_seconds: 600
   node_selectors: []
+  liveness_probe:
+  - /usr/local/openunison/bin/check_alive.sh
+  - https://127.0.0.1:8443/check_alive
+  - Anonymous
+  readiness_probe:
+  - /usr/local/openunison/bin/check_alive.sh
+  - https://127.0.0.1:8443/auth/idp/k8sIdp/.well-known/openid-configuration
+  - issuer
+  - https://127.0.0.1:8443/check_alive
+  - Anonymous
   
 openunison:
   replicas: 1
