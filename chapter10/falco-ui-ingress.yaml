@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sidekick-ui-ingress
+spec:
+  rules:
+  - host: "sidekick-ui.$hostip.nip.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: falcosidekick-ui
+            port: 
+              number: 2802
+

@@ -1,0 +1,340 @@
+# This deployment has been edited to remove the CronJob Triggers since it is not supported on K8s > 1.18
+---
+apiVersion: v1
+data:
+  builder-image: kubeless/function-image-builder:v1.0.8
+  builder-image-secret: ""
+  deployment: '{}'
+  enable-build-step: "false"
+  function-registry-tls-verify: "true"
+  ingress-enabled: "false"
+  provision-image: kubeless/unzip@sha256:e867f9b366ffb1a25f14baf83438db426ced4f7add56137b7300d32507229b5a
+  provision-image-secret: ""
+  runtime-images: '[{"ID": "ballerina", "depName": "", "fileNameSuffix": ".bal", "versions":
+    [{"images": [{"command": "/compile-function.sh $KUBELESS_FUNC_NAME", "image":
+    "ballerina/kubeless-ballerina-init@sha256:a04ca9d289c62397d0b493876f6a9ff4cc425563a47aa7e037c3b850b8ceb3e8",
+    "phase": "compilation"}, {"image": "ballerina/kubeless-ballerina@sha256:a025841010cfdf8136396efef31d4155283770d331ded6a9003e6e55f02db2e5",
+    "phase": "runtime"}], "name": "ballerina0.981.0", "version": "0.981.0"}]}, {"ID":
+    "dotnetcore", "depName": "project.csproj", "fileNameSuffix": ".cs", "versions":
+    [{"images": [{"command": "/app/compile-function.sh $KUBELESS_INSTALL_VOLUME",
+    "image": "allantargino/aspnetcore-build@sha256:0d60f845ff6c9c019362a68b87b3920f3eb2d32f847f2d75e4d190cc0ce1d81c",
+    "phase": "compilation"}, {"env": {"DOTNETCORE_HOME": "$(KUBELESS_INSTALL_VOLUME)/packages"},
+    "image": "allantargino/kubeless-dotnetcore@sha256:1699b07d9fc0276ddfecc2f823f272d96fd58bbab82d7e67f2fd4982a95aeadc",
+    "phase": "runtime"}], "name": "dotnetcore2.0", "version": "2.0"}, {"images": [{"command":
+    "/app/compile-function.sh $KUBELESS_INSTALL_VOLUME", "image": "allantargino/aspnetcore-build@sha256:36123cf0279b87c5d27d69558062678a5353cc6db238af46bd5c0e508109f659",
+    "phase": "compilation"}, {"env": {"DOTNETCORE_HOME": "$(KUBELESS_INSTALL_VOLUME)/packages"},
+    "image": "allantargino/kubeless-dotnetcore@sha256:6d6c659807881e9dac7adde305867163ced5711ef77a3a76e50112bca1ba14cf",
+    "phase": "runtime"}], "name": "dotnetcore2.1", "version": "2.1"}, {"images": [{"command":
+    "/app/compile-function.sh $KUBELESS_INSTALL_VOLUME", "image": "lennartquerter/kubless_compile_dotnetcore22:4761f204190ad59807b9231e096cbcb3901226cd",
+    "phase": "compilation"}, {"env": {"DOTNETCORE_HOME": "$(KUBELESS_INSTALL_VOLUME)/packages"},
+    "image": "lennartquerter/kubless_runtime_dotnetcore22:4761f204190ad59807b9231e096cbcb3901226cd",
+    "phase": "runtime"}], "name": "dotnetcore2.2", "version": "2.2"}, {"images": [{"command":
+    "/app/compile-function.sh $KUBELESS_INSTALL_VOLUME", "image": "lorenzoangelini3/kubeless-compile-dotnetcore31@sha256:12a85136102b9df6b09138dadd3bf77af111dc992286a0fd8ab4b03fd897fcc5",
+    "phase": "compilation"}, {"env": {"DOTNETCORE_HOME": "$(KUBELESS_INSTALL_VOLUME)/packages"},
+    "image": "lorenzoangelini3/kubeless-runtime-dotnetcore31@sha256:1d5b22f51a5584689e8ed0d31e428d50bef12cd48e31b7447d20df5372c72ba7",
+    "phase": "runtime"}], "name": "dotnetcore3.1", "version": "3.1"}]}, {"ID": "go",
+    "depName": "go.mod", "fileNameSuffix": ".go", "versions": [{"images": [{"command":
+    "/compile-function.sh", "env": {"GOCACHE": "$(KUBELESS_INSTALL_VOLUME)/.cache"},
+    "image": "kubeless/go-init:1.13@sha256:1619c58b52e9e767a83dd4269206b4554eb008352af15ca00b25db8127520b8c",
+    "phase": "compilation"}, {"image": "kubeless/go@sha256:ee496259f1bef2c338d074bfb5c14a08bb097f793a683d208a50df9f24d0d850",
+    "phase": "runtime"}], "name": "go1.13", "version": "1.13"}, {"images": [{"command":
+    "/compile-function.sh", "env": {"GOCACHE": "$(KUBELESS_INSTALL_VOLUME)/.cache"},
+    "image": "kubeless/go-init:1.14@sha256:b4b98c2848845447a43b50d61a386bcaa5bb34d5034a969aa404a41d71f1c439",
+    "phase": "compilation"}, {"image": "kubeless/go@sha256:ee496259f1bef2c338d074bfb5c14a08bb097f793a683d208a50df9f24d0d850",
+    "phase": "runtime"}], "name": "go1.14", "version": "1.14"}]}, {"ID": "java", "depName":
+    "pom.xml", "fileNameSuffix": ".java", "versions": [{"images": [{"command": "/compile-function.sh",
+    "image": "kubeless/java-init@sha256:c6364edc993d222482b0a1608d32dd744b8f11a73f3cd7395dee611ae143c8b8",
+    "phase": "compilation"}, {"image": "kubeless/java@sha256:bfdfcbf7468fdb47baf78f9b3a7372ec5c7d2598cc44bb828e07a2366ee97287",
+    "phase": "runtime"}], "name": "java1.8", "version": "1.8"}, {"images": [{"command":
+    "/compile-function.sh", "image": "kubeless/java-init@sha256:23390ab52914e32bc344f6f364ba711debb76b93a4cebd0b99a7d274ad12e1b0",
+    "phase": "compilation"}, {"image": "kubeless/java@sha256:e4cfa243f21e498e2d291174a785f8f70ca87feeb40641d09d6ef9260b9bc999",
+    "phase": "runtime"}], "name": "java11", "version": "11"}]}, {"ID": "nodejs", "depName":
+    "package.json", "fileNameSuffix": ".js", "versions": [{"images": [{"command":
+    "/kubeless-npm-install.sh", "image": "kubeless/nodejs@sha256:09dcc6a644a2e28fa13988ff6e3755627cb83ac0e65f9a89c8c2a13c3560493b",
+    "phase": "installation"}, {"env": {"NODE_PATH": "$(KUBELESS_INSTALL_VOLUME)/node_modules"},
+    "image": "kubeless/nodejs@sha256:09dcc6a644a2e28fa13988ff6e3755627cb83ac0e65f9a89c8c2a13c3560493b",
+    "phase": "runtime"}], "name": "node10", "version": "10"}, {"images": [{"command":
+    "/kubeless-npm-install.sh", "image": "kubeless/nodejs@sha256:90fd5aed17af289489b7ae32233d268dd5cc4c9ebc6b934910fd5f1bbdb7cdd1",
+    "phase": "installation"}, {"env": {"NODE_PATH": "$(KUBELESS_INSTALL_VOLUME)/node_modules"},
+    "image": "kubeless/nodejs@sha256:90fd5aed17af289489b7ae32233d268dd5cc4c9ebc6b934910fd5f1bbdb7cdd1",
+    "phase": "runtime"}], "name": "node12", "version": "12"}, {"images": [{"command":
+    "/kubeless-npm-install.sh", "image": "kubeless/nodejs@sha256:f3645b5e8417e5bcc905446e1fac8a7d565be74eeba4fd80c2487c5d43a32a7b",
+    "phase": "installation"}, {"env": {"NODE_PATH": "$(KUBELESS_INSTALL_VOLUME)/node_modules"},
+    "image": "kubeless/nodejs@sha256:f3645b5e8417e5bcc905446e1fac8a7d565be74eeba4fd80c2487c5d43a32a7b",
+    "phase": "runtime"}], "name": "node14", "version": "14"}]}, {"ID": "php", "depName":
+    "composer.json", "fileNameSuffix": ".php", "versions": [{"images": [{"command":
+    "composer install -d $KUBELESS_INSTALL_VOLUME", "image": "composer:1.6", "phase":
+    "installation"}, {"image": "kubeless/php@sha256:b7319492ad1f84de4b1b2c8b522b12e7807f14ddb05fa8ad59f648617b8396f9",
+    "phase": "runtime"}], "name": "php72", "version": "7.2"}, {"images": [{"command":
+    "composer install -d $KUBELESS_INSTALL_VOLUME", "image": "composer:1.6", "phase":
+    "installation"}, {"image": "kubeless/php@sha256:ed77d3c00748bf7b9a4586ca59aa151ec27019fe33537c7d10a84d68fb45fbf5",
+    "phase": "runtime"}], "name": "php73", "version": "7.3"}, {"images": [{"command":
+    "composer install -d $KUBELESS_INSTALL_VOLUME", "image": "composer:1.6", "phase":
+    "installation"}, {"image": "kubeless/php@sha256:497403402a9337969c9e24862894ac32422bf2231ac717f7e32705d36138f5a6",
+    "phase": "runtime"}], "name": "php74", "version": "7.4"}]}, {"ID": "python", "depName":
+    "requirements.txt", "fileNameSuffix": ".py", "versions": [{"images": [{"command":
+    "pip install --prefix=$KUBELESS_INSTALL_VOLUME -r $KUBELESS_DEPS_FILE", "image":
+    "python:3.6", "phase": "installation"}, {"env": {"PYTHONPATH": "$(KUBELESS_INSTALL_VOLUME)/lib/python3.6/site-packages:$(KUBELESS_INSTALL_VOLUME)"},
+    "image": "kubeless/python@sha256:7e5b40d9109508c9600f3346492913f918d6b2bdb70da0d50dae1cb6c313dbcf",
+    "phase": "runtime"}], "name": "python36", "version": "3.6"}, {"images": [{"command":
+    "pip install --prefix=$KUBELESS_INSTALL_VOLUME -r $KUBELESS_DEPS_FILE", "image":
+    "python:3.7", "phase": "installation"}, {"env": {"PYTHONPATH": "$(KUBELESS_INSTALL_VOLUME)/lib/python3.7/site-packages:$(KUBELESS_INSTALL_VOLUME)"},
+    "image": "kubeless/python@sha256:da554547652c1bea35a0e97045861395456e642e8290c781def79cbd6dad0a96",
+    "phase": "runtime"}], "name": "python37", "version": "3.7"}, {"images": [{"command":
+    "pip install --prefix=$KUBELESS_INSTALL_VOLUME -r $KUBELESS_DEPS_FILE", "image":
+    "python:3.8", "phase": "installation"}, {"env": {"PYTHONPATH": "$(KUBELESS_INSTALL_VOLUME)/lib/python3.8/site-packages:$(KUBELESS_INSTALL_VOLUME)"},
+    "image": "kubeless/python@sha256:536eb97fda81d6e52bd947f771192077aa7b4f529fd0ca30e47561f94741963d",
+    "phase": "runtime"}], "name": "python38", "version": "3.8"}]}, {"ID": "ruby",
+    "depName": "Gemfile", "fileNameSuffix": ".rb", "versions": [{"images": [{"command":
+    "bundle install --gemfile=$KUBELESS_DEPS_FILE --path=$KUBELESS_INSTALL_VOLUME",
+    "image": "bitnami/ruby:2.3", "phase": "installation"}, {"env": {"GEM_HOME": "$(KUBELESS_INSTALL_VOLUME)/ruby/2.3.0"},
+    "image": "kubeless/ruby@sha256:67870b57adebc4dc749a8a19795da801da2d05fc6e8324168ac1b227bb7c77f7",
+    "phase": "runtime"}], "name": "ruby23", "version": "2.3"}, {"images": [{"command":
+    "bundle install --gemfile=$KUBELESS_DEPS_FILE --path=$KUBELESS_INSTALL_VOLUME",
+    "image": "bitnami/ruby:2.4", "phase": "installation"}, {"env": {"GEM_HOME": "$(KUBELESS_INSTALL_VOLUME)/ruby/2.4.0"},
+    "image": "kubeless/ruby@sha256:f56ec50fafee09ae0ced9c8393b6874dc5072e4786c62d52b62b3f395643b423",
+    "phase": "runtime"}], "name": "ruby24", "version": "2.4"}, {"images": [{"command":
+    "bundle install --gemfile=$KUBELESS_DEPS_FILE --path=$KUBELESS_INSTALL_VOLUME",
+    "image": "bitnami/ruby:2.5", "phase": "installation"}, {"env": {"GEM_HOME": "$(KUBELESS_INSTALL_VOLUME)/ruby/2.5.0"},
+    "image": "kubeless/ruby@sha256:9a1b51da87617024ef33fc131fe673d35fe2600f06137e40301d7a4552669c7b",
+    "phase": "runtime"}], "name": "ruby25", "version": "2.5"}, {"images": [{"command":
+    "bundle install --gemfile=$KUBELESS_DEPS_FILE --path=$KUBELESS_INSTALL_VOLUME",
+    "image": "bitnami/ruby:2.6", "phase": "installation"}, {"env": {"GEM_HOME": "$(KUBELESS_INSTALL_VOLUME)/ruby/2.6.0"},
+    "image": "kubeless/ruby@sha256:e93ec41f43392cc1aaf6763f484aa66850b852c4a8d6841afbe8cb72aab7d810",
+    "phase": "runtime"}], "name": "ruby26", "version": "2.6"}]}, {"ID": "jvm", "depName":
+    "", "fileNameSuffix": ".jar", "versions": [{"images": [{"command": "mv /kubeless/*
+    /kubeless/payload.jar && cp /opt/*.jar /kubeless/ > /dev/termination-log 2>&1",
+    "image": "caraboides/jvm-init@sha256:e57dbf3f56570a196d68bce1c0695102b2dbe3ae2ca6d1c704476a7a11542f1d",
+    "phase": "compilation"}, {"image": "caraboides/jvm@sha256:2870c4f48df4feb2ee7478a152b44840d781d4b1380ad3fa44b3c7ff314faded",
+    "phase": "runtime"}], "name": "jvm1.8", "version": "1.8"}]}, {"ID": "nodejs_distroless",
+    "depName": "package.json", "fileNameSuffix": ".js", "versions": [{"images": [{"command":
+    "/kubeless-npm-install.sh", "image": "kubeless/nodejs@sha256:424add88dc2a7fdc45012593159794d59a6ea4aafadfffb632d21ae53b1d262b",
+    "phase": "installation"}, {"env": {"NODE_PATH": "$(KUBELESS_INSTALL_VOLUME)/node_modules"},
+    "image": "kubeless/nodejs-distroless@sha256:1fa0469c5520f4e08d89b1fafd2cacf03f098b96ea04997fa52bb9ef2a180fb3",
+    "phase": "runtime"}], "name": "node8", "version": "8"}]}, {"ID": "nodejsCE", "depName":
+    "package.json", "fileNameSuffix": ".js", "versions": [{"images": [{"command":
+    "/kubeless-npm-install.sh", "image": "kubeless/nodejs@sha256:456d98f6f15588b21f5110facf1cc203065840d4c227afa61d17c6c1fa98b3b6",
+    "phase": "installation"}, {"env": {"NODE_PATH": "$(KUBELESS_INSTALL_VOLUME)/node_modules"},
+    "image": "andresmgot/nodejs-ce@sha256:708c265d22a8a1599e05da844d26bc63e2f66f859ffecd2fcb541ecac9c66780",
+    "phase": "runtime"}], "name": "node8", "version": "8"}]}, {"ID": "vertx", "depName":
+    "pom.xml", "fileNameSuffix": ".java", "versions": [{"images": [{"command": "/compile-function.sh",
+    "image": "oscardovao/vertx-init@sha256:6665629b3239eb1d81654381b02c3dd4b87ddb0a1b0b49acc165f0ff53264e0b",
+    "phase": "compilation"}, {"image": "oscardovao/vertx@sha256:96243e5937a875422d6165e59f1fdb350f1a6d5befbd89f26968abea4345ade1",
+    "phase": "runtime"}], "name": "vertx1.8", "version": "1.8"}]}]'
+  service-type: ClusterIP
+kind: ConfigMap
+metadata:
+  name: kubeless-config
+  namespace: kubeless
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    kubeless: controller
+  name: kubeless-controller-manager
+  namespace: kubeless
+spec:
+  selector:
+    matchLabels:
+      kubeless: controller
+  template:
+    metadata:
+      labels:
+        kubeless: controller
+    spec:
+      containers:
+      - env:
+        - name: KUBELESS_INGRESS_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              key: ingress-enabled
+              name: kubeless-config
+        - name: KUBELESS_SERVICE_TYPE
+          valueFrom:
+            configMapKeyRef:
+              key: service-type
+              name: kubeless-config
+        - name: KUBELESS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBELESS_CONFIG
+          value: kubeless-config
+        image: kubeless/function-controller:v1.0.8
+        imagePullPolicy: IfNotPresent
+        name: kubeless-function-controller
+      - env:
+        - name: KUBELESS_INGRESS_ENABLED
+          valueFrom:
+            configMapKeyRef:
+              key: ingress-enabled
+              name: kubeless-config
+        - name: KUBELESS_SERVICE_TYPE
+          valueFrom:
+            configMapKeyRef:
+              key: service-type
+              name: kubeless-config
+        - name: KUBELESS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBELESS_CONFIG
+          value: kubeless-config
+        image: kubeless/http-trigger-controller:v1.0.3
+        imagePullPolicy: IfNotPresent
+        name: http-trigger-controller
+        
+      serviceAccountName: controller-acct
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: controller-acct
+  namespace: kubeless
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: kubeless-controller-deployer
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  - configmaps
+  verbs:
+  - create
+  - get
+  - delete
+  - list
+  - update
+  - patch
+- apiGroups:
+  - apps
+  - extensions
+  resources:
+  - deployments
+  verbs:
+  - create
+  - get
+  - delete
+  - list
+  - update
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - list
+  - delete
+- apiGroups:
+  - ""
+  resourceNames:
+  - kubeless-registry-credentials
+  resources:
+  - secrets
+  verbs:
+  - get
+- apiGroups:
+  - kubeless.io
+  resources:
+  - functions
+  - httptriggers
+  - cronjobtriggers
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - delete
+- apiGroups:
+  - batch
+  resources:
+  - cronjobs
+  - jobs
+  verbs:
+  - create
+  - get
+  - delete
+  - deletecollection
+  - list
+  - update
+  - patch
+- apiGroups:
+  - autoscaling
+  resources:
+  - horizontalpodautoscalers
+  verbs:
+  - create
+  - get
+  - delete
+  - list
+  - update
+  - patch
+- apiGroups:
+  - apiextensions.k8s.io
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - alertmanagers
+  - prometheuses
+  - servicemonitors
+  verbs:
+  - '*'
+- apiGroups:
+  - extensions
+  resources:
+  - ingresses
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: kubeless-controller-deployer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kubeless-controller-deployer
+subjects:
+- kind: ServiceAccount
+  name: controller-acct
+  namespace: kubeless
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: functions.kubeless.io
+spec:
+  group: kubeless.io
+  names:
+    kind: Function
+    plural: functions
+    singular: function
+  scope: Namespaced
+  version: v1beta1
+---
+apiVersion: apiextensions.k8s.io/v1beta1
+kind: CustomResourceDefinition
+metadata:
+  name: httptriggers.kubeless.io
+spec:
+  group: kubeless.io
+  names:
+    kind: HTTPTrigger
+    plural: httptriggers
+    singular: httptrigger
+  scope: Namespaced
+  version: v1beta1
+ 

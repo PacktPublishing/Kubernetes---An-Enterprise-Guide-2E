@@ -1,0 +1,9 @@
+customRules:
+  rules-nginx-write.yaml: |-
+    - rule: Detected NGINX Directory Change
+      desc: Detect any writes to the NGINX conf directory
+      condition: evt.dir = < and open_write and fd.directory in (/opt/bitnami/nginx/conf)
+      output: There has been a change under the NGINX conf directory (command=%proc.cmdline pid=%proc.pid connection=%fd.name sport=%fd.sport user=%user.name %container.info image=%container.image)
+      priority: NOTICE
+
+

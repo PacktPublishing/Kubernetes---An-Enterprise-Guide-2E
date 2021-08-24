@@ -1,0 +1,78 @@
+#  Falco Incident Response Function Engine
+#  Created by: Scott Surovich
+#  Description: This sctipt uses events forwarded by Falco Sidekick to Kubless to perform an action based on Falco events
+#               Sidekick can only target one Kubeless function - For multiple events  for Falco events, add a block for each new rule
+#               to the single spec.function in the manifest.
+
+apiVersion: kubeless.io/v1beta1
+kind: Function
+metadata:
+  finalizers:
+    - kubeless.io/function
+  generation: 1
+  labels:
+    created-by: kubeless
+    function: falco-functions
+  name: falco-functions
+spec:
+  deps: |
+    kubernetes>=12.0.1
+  function-content-type: text
+  function: |-
+    import kubernetes as k8s
+    from kubernetes import client, config
+    config.load_incluster_config()
+
+    # There can only be on Function definition
+    
+    def response_function(event, context):
+      rule = event['data']['rule'] or None
+      output_fields = event['data']['output_fields'] or None
+      print (rule)
+    
+    #  Workflow 1:
+      #  This workflow will create a Network policy thet denies all Ingress and Egress traffic when the Falco event "Terminal shell in container" is sent
+    
+      if rule and rule == "Detected NGINX Directory Change" and output_fields:
+        if output_fields['k8s.ns.name'] and output_fields['k8s.pod.name']:
+    
+          #  Get label information from POD generating events
+          #  The search will end on the first matching pod name and use the first label
+          #  that is not the pod-template-hash and exit the search
+          
+          falcopod = output_fields['k8s.pod.name']
+          namespace = output_fields['k8s.ns.name']
+          v1pod=k8s.client.CoreV1Api()
+          pod_list = v1pod.list_namespaced_pod(namespace)
+          for pod in pod_list.items:
+            if pod.metadata.name == falcopod:
+              print("Matching POD Found")
+          
+              #  Find the label that will be used as a selector in the Network Policy
+            
+              for key, value in pod.metadata.labels.items():
+                if key != "pod-template-hash":
+                  print("Found the first label for the pod " + key + ":" + value)
+              
+                  #  Create a new network policy in the PODs namespace using the label selector from the previous section
+                  #  To make it easier to find auto-generated policies, they will use the naming convention "falco-netpol-<pod_name>"
+                  #  All PODs from the deployment will be blocked since they all share a common label
+                  
+                  np = k8s.client.V1NetworkPolicy()
+                  np.kind = 'NetworkPolicy'
+                  np.api_version = 'networking.k8s.io/v1'
+                  polname = "falco-netpol-" + str(falcopod)
+                  np.metadata = k8s.client.V1ObjectMeta(name=polname, namespace=namespace)
+                  np.spec = k8s.client.V1NetworkPolicySpec(pod_selector=k8s.client.V1LabelSelector(match_expressions=None,match_labels={key:value}),policy_types=['Ingress', 'Egress'])
+                  k8s.client.NetworkingV1Api().create_namespaced_network_policy(namespace=namespace, body=np)
+  handler: falco-functions.response_function
+  runtime: python3.7
+ 
+  # Run the Function POD using the serviceaccount created for Falco Functions
+  
+  deployment:
+    spec:
+      template:
+        spec:
+          serviceAccountName: falco-functions
+

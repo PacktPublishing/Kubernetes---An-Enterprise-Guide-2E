@@ -1,0 +1,15 @@
+kind: Gateway
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: frontend-gateway
+  namespace: demo
+spec:
+  servers:
+    - hosts:
+        - demo.$hostip.nip.io
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+  selector:
+    istio: ingressgateway
