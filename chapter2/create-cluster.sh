@@ -59,8 +59,8 @@ echo -e "\n \n******************************************************************
 echo -e "Step 6: Install NGINX Ingress Controller"
 echo -e "*******************************************************************************************************************"
 tput setaf 3
-kubectl create -f nginx-deploy.yam
-l
+kubectl create -f nginx-deploy.yaml
+
 #Find IP address of Docker Host
 tput setaf 3
 hostip=$(hostname  -I | cut -f1 -d' ')
