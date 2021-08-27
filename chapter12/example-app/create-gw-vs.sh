@@ -14,7 +14,7 @@ export hostip=$(hostname  -I | cut -f1 -d' ')
 
 tput setaf 6
 echo -e "\n \n*******************************************************************************************************************"
-echo -e "Creating VirtualService for the Boutique Workload"
+echo -e "Creating Gateway for the Boutique Workload"
 echo -e "*******************************************************************************************************************"
 envsubst < gw.yaml | kubectl apply -f - --namespace demo
 
