@@ -1,0 +1,15 @@
+kind: Gateway
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: kiali-gateway 
+  namespace: istio-system
+spec:
+  servers:
+    - hosts:
+        - kiali.$hostip.nip.io
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+  selector:
+    istio: ingressgateway
