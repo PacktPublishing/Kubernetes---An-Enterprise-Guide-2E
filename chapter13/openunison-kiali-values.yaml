@@ -1,0 +1,6 @@
+enable_impersonation: true
+az_groups:
+  - cn=k8s-cluster-admins,ou=Groups,DC=domain,DC=com
+kiali:
+  host: kiali.istio-system.svc
+  port: 20001

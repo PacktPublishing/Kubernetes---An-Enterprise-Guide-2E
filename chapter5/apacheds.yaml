@@ -3,6 +3,8 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: activedirectory
+  labels:
+    istio-injection: enabled 
 spec:
   finalizers:
   - kubernetes
