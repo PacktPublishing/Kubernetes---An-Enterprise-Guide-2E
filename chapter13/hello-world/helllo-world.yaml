@@ -1,0 +1,145 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: istio-hello-world
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-source
+  namespace: istio-hello-world
+data:
+  requirements.txt: |-
+    flask
+  startup.sh: |-
+    #!/bin/bash
+
+    pip3 install -r /src/requirements.txt
+
+    echo "Starting python service..."
+
+    python3 /src/service.py
+  service.py: |-
+    from flask import Flask
+    import os
+    import socket
+    import json
+
+    app = Flask(__name__)
+
+    @app.route('/')
+    def hello():
+        retVal = {
+            "msg":"hello world!",
+            "host":"%s" % socket.gethostname()
+
+        }
+        return json.dumps(retVal)
+
+    @app.route("/health-check")
+    def health_check():
+      ret_val = {
+        "status":"I'm not dead yet!"
+      }
+      return json.dumps(ret_val)
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8080, debug=True)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: run-service
+  name: run-service
+  namespace: istio-hello-world
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: run-service
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: run-service
+    spec:
+      containers:
+      - image: python:buster
+        name: python
+        volumeMounts:
+          - mountPath: /src
+            name: sources
+        command:
+        - bash
+        - -c
+        - /src/startup.sh
+        livenessProbe:
+          httpGet:
+            path: /health-check
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /health-check
+            port: 8080
+      volumes:
+      - name: sources
+        configMap:
+          name: service-source
+          defaultMode: 0777
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: run-service
+  name: run-service
+  namespace: istio-hello-world
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+    name: http-service
+  selector:
+    app: run-service
+---
+kind: Gateway
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: service-gateway 
+  namespace: istio-hello-world
+spec:
+  servers:
+    - hosts:
+        - service.IPADDR.nip.io
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+  selector:
+    istio: ingressgateway
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: service-vs
+  namespace: istio-hello-world
+spec:
+  hosts:
+  - service.IPADDR.nip.io
+  gateways:
+  - service-gateway
+  http:
+  - route:
+    - destination:
+        port:
+          number: 80
+        host: run-service
+
+
