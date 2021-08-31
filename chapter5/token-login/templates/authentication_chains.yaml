@@ -32,5 +32,5 @@ spec:
   - name: genoidctoken
     required: required
     params:
-      idpName: k8sIdp
+      idpName: k8sidp
       trustName: kubernetes
