@@ -36,6 +36,10 @@ spec:
     matchLabels:
       app: run-service
   rules:
+  - from:
+    - source:
+      principals:
+      - "mmosley"
   - to:
     - operation:
         methods: ["GET"]
