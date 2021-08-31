@@ -38,8 +38,8 @@ spec:
   rules:
   - from:
     - source:
-      principals:
-      - "mmosley"
+        principals:
+        - "mmosley"
   - to:
     - operation:
         methods: ["GET"]
