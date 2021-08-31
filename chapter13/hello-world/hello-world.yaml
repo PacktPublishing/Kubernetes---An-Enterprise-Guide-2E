@@ -11,6 +11,8 @@ kind: ConfigMap
 metadata:
   name: service-source
   namespace: istio-hello-world
+  labels:
+    app: service
 data:
   requirements.txt: |-
     flask
@@ -114,6 +116,8 @@ apiVersion: networking.istio.io/v1alpha3
 metadata:
   name: service-gateway 
   namespace: istio-hello-world
+  labels:
+    app: run-service
 spec:
   servers:
     - hosts:
@@ -130,6 +134,8 @@ kind: VirtualService
 metadata:
   name: service-vs
   namespace: istio-hello-world
+  labels:
+    app: run-service
 spec:
   hosts:
   - service.IPADDR.nip.io
