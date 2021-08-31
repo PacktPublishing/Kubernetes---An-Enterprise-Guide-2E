@@ -9,20 +9,8 @@ spec:
     matchLabels:
       app: run-service
   jwtRules:
-  - issuer: https://k8sou.192-168-2-119.nip.io/auth/idp/k8sIdp
-    jwks: |-
-      {
-        "keys": [
-          {
-            "kty": "RSA",
-            "kid": "C=MyCountry, ST=State of Cluster, L=My Cluster, O=MyOrg, OU=Kubernetes, CN=unison-saml2-rp-sig-C=MyCountry, ST=State of Cluster, L=My Cluster, O=MyOrg, OU=Kubernetes, CN=unison-saml2-rp-sig-1630419680729",
-            "use": "sig",
-            "alg": "RS256",
-            "n": "lOCcECcYLH38_v7YbdGKoBhoftOHaUXrdnp4DmlAPGGD3hsaZC-r8RgHqwM8PHiKGAMFmvpQJBd5T5oo9s0RaIqeWwjfeJuK81aFgc1Bxo5Z26cbPb9697sFAY-Gaaf2ur4RWVVruR85YshC8bXJLa3MkH2D4C6JnAFn6f7AeFNaiOtlL4F2WliY8mOc9KMD12Y6fd5T3aBQQCSbovqKVVJRta1RzNp0Bw1OwgeJ4Y0FtsxcPx0PuL3QjtWqM9vPvDbJo1HMtJQRyv0obLTuf9RALBsn8TaRJiss-Tz03AlB6uCbrsKIaRwhHi9bewERwMf_O_hsrY41embhKNPaoQ",
-            "e": "AQAB"
-          }
-        ]
-      }
+  - issuer: https://k8sou.IP_ADDR.nip.io/auth/idp/k8sIdp
+    jwks: 'JWKS_FROM_SERVER'
     audiences:
     - kubernetes
 ---
@@ -32,19 +20,12 @@ metadata:
   name: simple-hellow-world
   namespace: istio-hello-world
 spec:
-#  selector:
-#    matchLabels:
-#      app: run-service
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: run-service
   rules:
   - from:
     - source:
-        principals:
-        - "mmosley"
-  - to:
-    - operation:
-        methods: ["GET"]
-        paths: ["/"]
-  - when:
-    - key: request.auth.claims[iss]
-      values:
-      - https://k8sou.192-168-2-119.nip.io/auth/idp/k8sIdp
+        requestPrincipals: ["*"]
+  
