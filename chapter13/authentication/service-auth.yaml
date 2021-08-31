@@ -43,7 +43,7 @@ spec:
   - to:
     - operation:
         methods: ["GET"]
-        paths: ["/*"]
+        paths: ["/"]
   - when:
     - key: request.auth.claims[iss]
       values:
