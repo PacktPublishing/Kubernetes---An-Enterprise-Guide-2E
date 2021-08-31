@@ -10,6 +10,6 @@ export oidc_config=$(curl --insecure https://k8sou.$hostip.nip.io/auth/idp/k8sId
 echo "getting jwks"
 export jwks=$(curl --insecure $oidc_config 2>/dev/null | jq -c '.')
 
-sed "s/IPADDR/$hostip/g" < ./service-auth.yaml | "s/JWKS_FROM_SERVER/$jwks/g" > /tmp/service-auth.yaml
+sed "s/IPADDR/$hostip/g" < ./service-auth.yaml | sed "s/JWKS_FROM_SERVER/$jwks/g" > /tmp/service-auth.yaml
 
 kubectl create -f /tmp/service-auth.yaml
