@@ -42,3 +42,7 @@ spec:
   - to:
     - operation:
         paths: ["/"]
+  - when:
+    - key: request.auth.claims[iss]
+      values:
+      - https://k8sou.192-168-2-119.nip.io/auth/idp/k8sIdp
