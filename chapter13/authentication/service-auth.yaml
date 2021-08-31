@@ -9,7 +9,7 @@ spec:
     matchLabels:
       app: run-service
   jwtRules:
-  - issuer: https://k8sou.192-168-2-119.nip.io/auth/idp/k8sIdpX
+  - issuer: https://k8sou.192-168-2-119.nip.io/auth/idp/k8sIdp
     jwks: |-
       {
         "keys": [
@@ -36,9 +36,6 @@ spec:
     matchLabels:
       app: run-service
   rules:
-  - from:
-    - source:
-        requestPrincipals: ["*"]
   - to:
     - operation:
         paths: ["/"]
