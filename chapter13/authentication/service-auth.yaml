@@ -32,9 +32,9 @@ metadata:
   name: simple-hellow-world
   namespace: istio-hello-world
 spec:
-  selector:
-    matchLabels:
-      app: run-service
+#  selector:
+#    matchLabels:
+#      app: run-service
   rules:
   - from:
     - source:
