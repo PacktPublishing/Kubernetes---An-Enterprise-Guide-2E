@@ -13,6 +13,7 @@ spec:
     jwks: 'JWKS_FROM_SERVER'
     audiences:
     - kubernetes
+    outputPayloadToHeader: User-Info
 ---
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy

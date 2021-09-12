@@ -1,0 +1,40 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Application
+metadata:
+  name: getusertoken
+  namespace: {{ .Release.Namespace }}
+spec:
+  azTimeoutMillis: 3000
+  isApp: true
+  urls:
+  - hosts:
+    - "#[OU_HOST]"
+    filterChain:
+    - className: com.tremolosecurity.scalejs.token.ws.ScaleToken
+      params:
+        displayNameAttribute: "sub"
+        frontPage.title: "token"
+        frontPage.text: "token"
+        uidAttributeName: uid
+        logoutURL: "/logout"
+        homeURL: "/scale/"
+        warnMinutesLeft: "5"
+        tokenClassName: "com.tremolosecurity.idp.providers.oidc.scalejs.IdTokenLoader"
+    uri: /get-user-token/token
+    azRules:
+    - scope: dn
+      constraint: o=Tremolo
+    authChain: service-api-idp
+    results: {}
+  cookieConfig:
+    sessionCookieName: tremolosession
+    domain: "#[OU_HOST]"
+    secure: true
+    httpOnly: true
+    logoutURI: "/logout"
+    keyAlias: session-unison
+    timeout: 900
+    scope: -1
+    cookiesEnabled: false
+    

@@ -1,0 +1,36 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: AuthenticationChain
+metadata:
+  name: service-api-idp
+  namespace: {{ .Release.Namespace }}
+spec:
+  level: 20
+  root: o=Data
+  authMechs:
+  - name: basic
+    required: required
+    params:
+      realmName: service-api
+      uidAttr: uid
+    secretParams: []
+  - name: map
+    required: required
+    params:
+      map: 
+      - "uid|composite|${uid}"
+      - "mail|composite|${mail}"
+      - "givenName|composite|${givenName}"
+      - "sn|composite|${sn}"
+      - "displayName|composite|${displayName}"
+      - "memberOf|user|memberOf"
+  - name: jit
+    required: required
+    params: 
+      nameAttr: uid
+      workflowName: jitdb
+  - name: genoidctoken
+    required: required
+    params:
+      idpName: service-idp
+      trustName: users

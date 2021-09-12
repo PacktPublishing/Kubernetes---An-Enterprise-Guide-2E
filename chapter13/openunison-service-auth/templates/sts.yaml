@@ -1,0 +1,137 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Application
+metadata:
+  name: service-idp
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-applications
+    app.kubernetes.io/part-of: openunison
+spec:
+  azTimeoutMillis: 3000
+  isApp: false
+  urls:
+  - hosts:
+    - "#[OU_HOST]"
+    - "127.0.0.1"
+    filterChain: []
+    uri: "/auth/idp/service-idp"
+    azRules:
+    - scope: dn
+      constraint: o=Tremolo
+    results:
+      azFail: default-login-failure
+      auFail: default-login-failure
+    idp:
+      className: com.tremolosecurity.idp.providers.OpenIDConnectIdP
+      params:
+        jwtSigningKey: "unison-saml2-rp-sig"
+        sessionStoreClassName: "com.tremolosecurity.idp.providers.oidc.none.NoneBackend"
+        authChainToAmr:
+        - "service-api-idp=pwd"
+        - "oauth2k8s=k8s-sa"
+      mappings:
+        strict: true
+        map:
+        - targetAttributeName: sub
+          targetAttributeSource: sub
+          sourceType: user
+        - targetAttributeName: name
+          targetAttributeSource: ${giveName} ${sn}
+          sourceType: composite
+        - targetAttributeName: preferred_username
+          targetAttributeSource: uid
+          sourceType: user
+        - targetAttributeName: email
+          targetAttributeSource: mail
+          sourceType: user
+        - targetAttributeName: groups
+          targetAttributeSource: groups
+          sourceType: user
+      trusts:
+      - name: "users"
+        params:
+          clientID: "users"
+          clientSecret: "notimportant"
+          publicEndpoint: "false"
+          redirectURI: "doesnotmatter"
+          codeLastMileKeyName: lastmile-oidc
+          authChainName: login-service
+          codeTokenSkewMilis: "60000"
+          accessTokenTimeToLive: "60000"
+          accessTokenSkewMillis: "120000"
+      - name: "sts-impersonation"
+        params:
+          clientID: "sts-impersonation"
+          clientSecret: "notimportant"
+          publicEndpoint: "false"
+          redirectURI: "doesnotmatter"
+          codeLastMileKeyName: lastmile-oidc
+          authChainName: oauth2k8s
+          codeTokenSkewMilis: "60000"
+          accessTokenTimeToLive: "60000"
+          accessTokenSkewMillis: "120000"
+          isSts: "true"
+          clientAzRules:
+          - "dn;o=Tremolo"
+          authorizedAudiences:
+          - checkfunds
+          subjectAzRules:
+          - "dn;o=Tremolo"
+          stsImpersonation: "true"
+      - name: "sts-delegation"
+        params:
+          clientID: "sts-delegation"
+          clientSecret: "notimportant"
+          publicEndpoint: "false"
+          redirectURI: "doesnotmatter"
+          codeLastMileKeyName: lastmile-oidc
+          authChainName: oauth2k8s
+          codeTokenSkewMilis: "60000"
+          accessTokenTimeToLive: "60000"
+          accessTokenSkewMillis: "120000"
+          isSts: "true"
+          clientAzRules:
+          - "dn;o=Tremolo"
+          authorizedAudiences:
+          - pullfunds
+          subjectAzRules:
+          - "dn;o=Tremolo"
+          stsImpersonation: "false"
+          stsDelegation: "true"
+          enableClientCredentialsGrant: "true"
+      - name: "checkfunds"
+        params:
+          clientID: "checkfunds"
+          clientSecret: "notimportant"
+          publicEndpoint: "false"
+          redirectURI: "doesnotmatter"
+          codeLastMileKeyName: lastmile-oidc
+          authChainName: login-service
+          codeTokenSkewMilis: "60000"
+          accessTokenTimeToLive: "60000"
+          accessTokenSkewMillis: "120000"
+      - name: "pullfunds"
+        params:
+          clientID: "pullfunds"
+          clientSecret: "notimportant"
+          publicEndpoint: "false"
+          redirectURI: "doesnotmatter"
+          codeLastMileKeyName: lastmile-oidc
+          authChainName: login-service
+          codeTokenSkewMilis: "60000"
+          accessTokenTimeToLive: "60000"
+          accessTokenSkewMillis: "120000"
+
+  cookieConfig:
+    sessionCookieName: tremolosession
+    domain: "#[OU_HOST]"
+    secure: true
+    httpOnly: true
+    logoutURI: "/logout"
+    keyAlias: session-unison
+    timeout: 900
+    scope: -1
+    cookiesEnabled: true

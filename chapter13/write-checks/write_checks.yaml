@@ -1,0 +1,322 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    istio-injection: enabled
+  name: write-checks
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-source
+  namespace: write-checks
+  labels:
+    app: write-checks
+data:
+  requirements.txt: |-
+    flask
+    pyjwt
+    requests
+  startup.sh: |-
+    #!/bin/bash
+
+    pip3 install -r /src/requirements.txt
+
+    echo "Starting python service..."
+
+    python3 /src/service.py
+  service.py: |-
+    from flask import Flask
+    import os
+    import socket
+    import json
+    from flask import request
+    from pathlib import Path
+    import requests
+    import base64
+
+    app = Flask(__name__)
+
+    @app.route('/headers')
+    def return_headers():
+      return json.dumps({"headers":str(request.headers)})
+
+    @app.route('/write-check')
+    def write_check():
+
+        # let's first get the original JWT.  We'll
+        # use this as an input for impersonation
+
+        az_header = request.headers["Authorization"]
+        user_jwt = az_header[7:]
+
+        # next, get the pod's ServiceAccount token
+        # so we can identify the pod to the IdP for
+        # an impersonation token
+
+        pod_jwt = Path('/var/run/secrets/kubernetes.io/serviceaccount/token').read_text()
+
+
+        # with the subject (user) jwt and the pod 
+        # jwt we can now request an impersonated 
+        # token for our user from openunison
+
+        impersonation_request = {
+          "grant_type":"urn:ietf:params:oauth:grant-type:token-exchange",
+          "audience":"checkfunds",
+          "subject_token":user_jwt,
+          "subject_token_type":"urn:ietf:params:oauth:token-type:id_token",
+          "client_id":"sts-impersonation"
+        }
+
+        impersonation_headers = {
+          "Authorization": "Bearer %s" % pod_jwt
+        }
+
+        resp = requests.post("https://k8sou.IPADDR.nip.io/auth/idp/service-idp/token",verify=False,data=impersonation_request,headers=impersonation_headers)
+
+        response_payload = json.loads(resp.text)
+
+        impersonated_id_token = response_payload["id_token"]
+
+        # with the impersonated user's id_token, call another
+        # service as that user
+
+        call_funds_headers = {
+          "Authorization": "Bearer %s" % impersonated_id_token
+        }
+
+        resp = requests.get("http://write-checks.IPADDR.nip.io/check-funds",verify=False,headers=call_funds_headers)
+
+        call_funds_text = resp.text
+
+        # Next, pull the funds with a delegated token
+
+        # get the pod's ServiceAccount token
+        # so we can identify the pod to the IdP for
+        # an impersonation token
+
+        pod_jwt = Path('/var/run/secrets/kubernetes.io/serviceaccount/token').read_text()
+
+        # get a jwt from the idp for our pod's sa
+        # using the client_credentials grant
+
+        client_credentials_grant_request = {
+          "grant_type": "client_credentials",
+          "client_id" : "sts-delegation"
+        }
+
+        delegation_headers = {
+          "Authorization": "Bearer %s" % pod_jwt
+        }
+
+        resp = requests.post("https://k8sou.IPADDR.nip.io/auth/idp/service-idp/token",verify=False,data=client_credentials_grant_request,headers=delegation_headers)
+
+        response_payload = json.loads(resp.text)
+        actor_token = response_payload["id_token"]
+
+        # with an actor token, call the tokens endpoint to
+        # get a delegated token
+
+        delegation_request = {
+          "grant_type":"urn:ietf:params:oauth:grant-type:token-exchange",
+          "audience":"pullfunds",
+          "subject_token":user_jwt,
+          "subject_token_type":"urn:ietf:params:oauth:token-type:id_token",
+          "client_id":"sts-delegation",
+          "actor_token": actor_token,
+          "actor_token_type": "urn:ietf:params:oauth:token-type:id_token"
+        }
+
+        resp = requests.post("https://k8sou.IPADDR.nip.io/auth/idp/service-idp/token",verify=False,data=delegation_request)
+
+        response_payload = json.loads(resp.text)
+
+        delegation_token = response_payload["id_token"]
+
+        pull_funds_header = {
+          "Authorization": "Bearer %s" % delegation_token
+        }
+
+        resp = requests.get("http://write-checks.IPADDR.nip.io/pull-funds",verify=False,headers=pull_funds_header)
+
+        pull_funds_text = resp.text
+
+        retVal = {
+            "msg":"hello world!",
+            "host":"%s" % socket.gethostname(),
+            "user_jwt": user_jwt,
+            "pod_jwt": pod_jwt,
+            "impersonated_jwt" : impersonated_id_token,
+            "call_funds_status_code" : resp.status_code,
+            "call_funds_text" : call_funds_text, 
+            "actor_token" : actor_token,
+            "delegation_token" : delegation_token,
+            "pull_funds_text" : pull_funds_text
+        }
+
+        return json.dumps(retVal)
+
+    @app.route("/check-funds")
+    def check_funds():
+      user_info = request.headers["User-Info"]
+      user_info_json = base64.b64decode(user_info).decode("utf8")
+      user_info_obj = json.loads(user_info_json)
+
+      print("Calling check funds as '%s'" % user_info_obj["sub"])
+
+      return json.dumps({"funds_available":True,"user":user_info_obj["sub"]})
+
+    @app.route("/pull-funds")
+    def pull_funds():
+      user_info = request.headers["User-Info"]
+      user_info_json = base64.b64decode(user_info).decode("utf8")
+      user_info_obj = json.loads(user_info_json)
+
+      print("Calling pull funds as '%s'" % user_info_obj["sub"])
+
+      return json.dumps({"funds_pulled":True,"user":user_info_obj["sub"],"actor":user_info_obj["act"]["sub"]})
+
+
+    @app.route("/health-check")
+    def health_check():
+      ret_val = {
+        "status":"I'm not dead yet!"
+      }
+      return json.dumps(ret_val)
+
+    if __name__ == "__main__":
+        app.run(host="0.0.0.0", port=8080, debug=True)
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: write-checks
+  name: write-checks
+  namespace: write-checks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: write-checks
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: write-checks
+    spec:
+      containers:
+      - image: python:buster
+        name: python
+        volumeMounts:
+          - mountPath: /src
+            name: sources
+        command:
+        - bash
+        - -c
+        - /src/startup.sh
+        livenessProbe:
+          httpGet:
+            path: /health-check
+            port: 8080
+        readinessProbe:
+          httpGet:
+            path: /health-check
+            port: 8080
+      volumes:
+      - name: sources
+        configMap:
+          name: service-source
+          defaultMode: 0777
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: write-checks
+  name: write-checks
+  namespace: write-checks
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+    name: http-service
+  selector:
+    app: write-checks
+---
+kind: Gateway
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: service-gateway 
+  namespace: write-checks
+  labels:
+    app: write-checks
+spec:
+  servers:
+    - hosts:
+        - write-checks.IPADDR.nip.io
+      port:
+        name: http
+        number: 80
+        protocol: HTTP
+  selector:
+    istio: ingressgateway
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: service-vs
+  namespace: write-checks
+  labels:
+    app: write-checks
+spec:
+  hosts:
+  - write-checks.IPADDR.nip.io
+  gateways:
+  - service-gateway
+  http:
+  - route:
+    - destination:
+        port:
+          number: 80
+        host: write-checks
+---
+apiVersion: security.istio.io/v1beta1
+kind: RequestAuthentication
+metadata:
+  name: write-checks-auth
+  namespace: write-checks
+spec:
+  selector:
+    matchLabels:
+      app: write-checks
+  jwtRules:
+  - issuer: https://k8sou.IPADDR.nip.io/auth/idp/service-idp
+    jwks: 'JWKS_FROM_SERVER'
+    audiences:
+    - users
+    - checkfunds
+    - pullfunds
+    outputPayloadToHeader: User-Info
+    forwardOriginalToken: true
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: service-level-az
+  namespace: write-checks
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: write-checks
+  rules:
+  - when:
+    - key: request.auth.claims[groups]
+      values: ["cn=group2,ou=Groups,DC=domain,DC=com"]
+

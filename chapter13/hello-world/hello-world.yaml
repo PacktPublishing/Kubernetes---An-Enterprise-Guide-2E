@@ -26,11 +26,30 @@ data:
     python3 /src/service.py
   service.py: |-
     from flask import Flask
+    from flask import request
     import os
     import socket
     import json
+    import base64
 
     app = Flask(__name__)
+
+    @app.route('/headers')
+    def return_headers():
+      return json.dumps({"headers":str(request.headers)})
+    
+    @app.route('/who-am-i')
+    def who_am_i():
+      user_info = request.headers["User-Info"]
+      user_info_json = base64.b64decode(user_info).decode("utf8")
+      user_info_obj = json.loads(user_info_json)
+      ret_val = {
+        "name": user_info_obj["sub"],
+        "groups": user_info_obj["groups"]
+      }
+
+      return json.dumps(ret_val)
+      
 
     @app.route('/')
     def hello():

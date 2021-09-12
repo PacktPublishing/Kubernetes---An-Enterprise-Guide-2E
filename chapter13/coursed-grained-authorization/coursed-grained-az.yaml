@@ -1,0 +1,15 @@
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: service-level-az
+  namespace: istio-hello-world
+spec:
+  action: ALLOW
+  selector:
+    matchLabels:
+      app: run-service
+  rules:
+  - when:
+    - key: request.auth.claims[groups]
+      values: ["cn=group2,ou=Groups,DC=domain,DC=com"]
