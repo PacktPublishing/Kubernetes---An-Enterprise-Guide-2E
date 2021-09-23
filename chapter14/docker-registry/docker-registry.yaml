@@ -92,4 +92,5 @@ spec:
             backend:
               service:
                 name: docker-registry
-                port: 5000
+                port: 
+                  number: 5000
