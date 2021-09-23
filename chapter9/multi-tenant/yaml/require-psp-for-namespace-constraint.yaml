@@ -19,3 +19,4 @@ spec:
     - tigera-operator
     - activedirectory
     - cert-manager
+    - docker-registry
