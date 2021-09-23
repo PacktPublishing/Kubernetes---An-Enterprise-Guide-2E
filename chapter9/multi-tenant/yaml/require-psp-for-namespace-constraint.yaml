@@ -18,3 +18,4 @@ spec:
     - local-path-storage
     - tigera-operator
     - activedirectory
+    - cert-manager
