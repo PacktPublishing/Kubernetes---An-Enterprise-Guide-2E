@@ -28,6 +28,8 @@ echo "Deploying ActiveDirectory (ApacheDS)"
 
 kubectl apply -f ../../chapter5/apacheds.yaml
 
+while [[ $(kubectl get pods -l app=apacheds -n activedirectory -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for apacheds to be running" && sleep 1; done
+
 echo "Adding helm repo"
 
 helm repo add $REPO_NAME $REPO_URL
