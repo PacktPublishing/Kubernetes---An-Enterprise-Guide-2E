@@ -77,12 +77,27 @@ spec:
     - kube-node-lease
     - kube-public
     - kubernetes-dashboard
-    - local-path-storage
     - openunison
     - ingress-nginx
     - activedirectory
   parameters:
     allowedHostPaths: []
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostFilesystem
+metadata:
+  name: local-path-provisioner
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - local-path-storage
+  parameters:
+    allowedHostPaths:
+    - pathPrefix: "/var/local-path-provisioner"
+      readOnly: false
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sPSPHostNamespace

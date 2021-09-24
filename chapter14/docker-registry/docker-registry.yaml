@@ -4,6 +4,22 @@ kind: Namespace
 metadata:
   name: docker-registry
 ---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostFilesystem
+metadata:
+  name: docker-registry-host-filesystem
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+    - docker-registry
+  parameters:
+    allowedHostPaths: 
+    - pathPrefix: "/var/local-path-provisioner"
+      readOnly: false
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
