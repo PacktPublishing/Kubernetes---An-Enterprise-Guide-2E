@@ -96,6 +96,10 @@ echo "Waiting for Orchestra to be running"
 
 while [[ $(kubectl get pods -l app=openunison-orchestra -n openunison -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for orchestra to be running" && sleep 1; done
 
+echo "Sleeping for 10 seconds to let openunison catch up...."
+
+sleep 10s
+
 echo "Deploying the login portal"
 
 helm install orchestra-login-portal $REPO_NAME/orchestra-login-portal --namespace openunison -f /tmp/openunison-values.yaml
