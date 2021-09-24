@@ -104,7 +104,7 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 EOF
 
-kubectl delete pod -l app=kube-oidc-proxy-orchestra -n openunison
+
 
 echo "OpenUnison is deployed!"
 
