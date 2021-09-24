@@ -39,6 +39,10 @@ kubectl apply -f ./mariadb.yaml
 
 while [[ $(kubectl get pods -l app=mariadb -n mariadb -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for mariadb to be running" && sleep 1; done
 
+echo "Sleeping for 10 seconds to let mariadb catch up...."
+
+sleep 10s
+
 echo "Deploying SMTP Blackhole"
 
 kubectl apply -f ./smtp-blackhole.yaml
