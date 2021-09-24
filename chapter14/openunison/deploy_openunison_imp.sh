@@ -35,11 +35,11 @@ helm repo update
 
 echo "Deploying MariaDB"
 
-kuebctl apply -f ./mariadb.yaml
+kubectl apply -f ./mariadb.yaml
 
 echo "Deploying SMTP Blackhole"
 
-kuebctl apply -f ./smtp-blackhole.yaml
+kubectl apply -f ./smtp-blackhole.yaml
 
 
 echo "Creating openunison namespace"
@@ -67,7 +67,7 @@ data:
    K8S_DB_SECRET: c3RhcnQxMjM=
    unisonKeystorePassword: cGFzc3dvcmQK
    AD_BIND_PASSWORD: c3RhcnQxMjM=
-   OU_JDBC_PASSWORD": c3RhcnR0MTIz
+   OU_JDBC_PASSWORD: c3RhcnR0MTIz
    SMTP_PASSWORD: ZG9lc25vdG1hdHRlcg==
 kind: Secret
 EOF
