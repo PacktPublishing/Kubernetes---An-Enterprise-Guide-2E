@@ -33,6 +33,15 @@ echo "Adding helm repo"
 helm repo add $REPO_NAME $REPO_URL
 helm repo update
 
+echo "Deploying MariaDB"
+
+kuebctl apply -f ./mariadb.yaml
+
+echo "Deploying SMTP Blackhole"
+
+kuebctl apply -f ./smtp-blackhole.yaml
+
+
 echo "Creating openunison namespace"
 
 kubectl create ns openunison
@@ -58,6 +67,8 @@ data:
    K8S_DB_SECRET: c3RhcnQxMjM=
    unisonKeystorePassword: cGFzc3dvcmQK
    AD_BIND_PASSWORD: c3RhcnQxMjM=
+   OU_JDBC_PASSWORD": c3RhcnR0MTIz
+   SMTP_PASSWORD: ZG9lc25vdG1hdHRlcg==
 kind: Secret
 EOF
 
@@ -86,27 +97,6 @@ while [[ $(kubectl get pods -l app=openunison-orchestra -n openunison -o 'jsonpa
 echo "Deploying the login portal"
 
 helm install orchestra-login-portal $REPO_NAME/orchestra-login-portal --namespace openunison -f /tmp/openunison-values.yaml
-
-
-
-echo "Creating rolebinding"
-
-kubectl create -f - <<EOF
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-   name: ou-cluster-admins
-subjects:
-- kind: Group
-  name: cn=k8s-cluster-admins,ou=Groups,DC=domain,DC=com
-  apiGroup: rbac.authorization.k8s.io
-roleRef:
-  kind: ClusterRole
-  name: cluster-admin
-  apiGroup: rbac.authorization.k8s.io
-EOF
-
-
 
 echo "OpenUnison is deployed!"
 

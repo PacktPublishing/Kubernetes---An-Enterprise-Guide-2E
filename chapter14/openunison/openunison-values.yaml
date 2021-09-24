@@ -96,6 +96,21 @@ openunison:
   secrets: []
   html:
     image: docker.io/tremolosecurity/openunison-k8s-html
-  enable_provisioning: false
+  enable_provisioning: true
 
 myvd_configmap: myvd-book
+
+database:
+  hibernate_dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+  quartz_dialect: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
+  driver: com.mysql.jdbc.Driver
+  url: jdbc:mysql://mariadb.mariadb.svc:3306/unison
+  user: unison
+  validation: SELECT 1
+
+smtp:
+  host: blackhole.blackhole.svc.cluster.local
+  port: 1025
+  user: "none"
+  from: donotreply@domain.com
+  tls: false
