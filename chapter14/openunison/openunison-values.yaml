@@ -1,0 +1,99 @@
+network:
+  openunison_host: "k8sou.apps.IPADDR.nip.io"
+  dashboard_host: "k8sdb.apps.IPADDR.nip.io"
+  api_server_host: "k8sapi.apps.IPADDR.nip.io"
+  session_inactivity_timeout_seconds: 900
+  k8s_url: https://0.0.0.0:6443
+  force_redirect_to_tls: false
+  createIngressCertificate: false
+  ingress_type: nginx
+  ingress_annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: "letsencrypt"
+  
+
+
+cert_template:
+  ou: "Kubernetes"
+  o: "MyOrg"
+  l: "My Cluster"
+  st: "State of Cluster"
+  c: "MyCountry"
+
+#image: "docker.io/tremolosecurity/openunison-k8s-login-activedirectory:latest"
+image: docker.io/tremolosecurity/betas:ou-k8s-1024
+myvd_config_path: "WEB-INF/myvd.conf"
+k8s_cluster_name: kubernetes
+enable_impersonation: true
+
+impersonation:
+  use_jetstack: true
+  jetstack_oidc_proxy_image: quay.io/jetstack/kube-oidc-proxy:v0.3.0
+  explicit_certificate_trust: true
+
+dashboard:
+  namespace: "kubernetes-dashboard"
+  cert_name: "kubernetes-dashboard-certs"
+  label: "k8s-app=kubernetes-dashboard"
+  service_name: kubernetes-dashboard
+certs:
+  use_k8s_cm: false
+
+trusted_certs:
+  - name: ldaps
+    pem_b64: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURlekNDQW1PZ0F3SUJBZ0lFR2owUUZ6QU5CZ2txaGtpRzl3MEJBUXNGQURCdE1Rd3dDZ1lEVlFRR0V3TmsKWlhZeEREQUtCZ05WQkFnVEEyUmxkakVNTUFvR0ExVUVCeE1EWkdWMk1Rd3dDZ1lEVlFRS0V3TmtaWFl4RERBSwpCZ05WQkFzVEEyUmxkakVsTUNNR0ExVUVBeE1jWVhCaFkyaGxaSE11WVdOMGFYWmxaR2x5WldOMGIzSjVMbk4yCll6QWdGdzB5TVRBM01EVXdNRFV6TWpoYUdBOHlNVEl4TURZeE1UQXdOVE15T0Zvd2JURU1NQW9HQTFVRUJoTUQKWkdWMk1Rd3dDZ1lEVlFRSUV3TmtaWFl4RERBS0JnTlZCQWNUQTJSbGRqRU1NQW9HQTFVRUNoTURaR1YyTVF3dwpDZ1lEVlFRTEV3TmtaWFl4SlRBakJnTlZCQU1USEdGd1lXTm9aV1J6TG1GamRHbDJaV1JwY21WamRHOXllUzV6CmRtTXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFDNlNVQUJRSUZkYnRwZGJ3WEEKT05ablJVQlFBMEVyK2hWYmkxUHNWSnNaaUlGZjhJRC8xZXBPN0M4QlViVXN1U3dWWkc5ZEJIV3o0RFBwWUUrKwp2dmxrTEs1cEdiTnJQbDdFd241clJLRE5PeVR5ZUNBcFMzSVNsRW1iaVNQUjBuYXd5ckpoNjhQQ0I1bURSNTNmCmh1bFhPQ0dTd3ZNN2RwM2RPc3lFQmRlVkw3aTFnbkJNYi9wN05YdTN5WmlWaDlpS3pqaENrZndqL0VsNTZaUHEKYmsvOGtQN0xBdTFvZGJWTkZGSUx5clB6SFBFU3I3N0preHcvKytPTmhtblA2UFBiU3FtRm0rcUVEYWhQanBFZgpscUdaY3BsOEZ0VXBzTG5JK3B4blI5eWU5ZUNpVDVuaDhlTEhobkVFNzFpVE1rb2xrSHdxSm5xV1R3ZlF2b1g5CkM2SERBZ01CQUFHaklUQWZNQjBHQTFVZERnUVdCQlRjOGlDU055NnhSM2M5OU1aYkZUODgzREs1V0RBTkJna3EKaGtpRzl3MEJBUXNGQUFPQ0FRRUFOMEkwZnJDSzdYNGRHRmpGLzFpb3czUUwvbTcwemVIemlQVVFFUUdONXBFMwpyMlZZL0ZHWGdNV0tFSXpHa2hMZW5CUXRxRE5Pbm4vL1JjK0Y2anM1RkNOVXhaT2V4ekl2aElhY0M4YUhzRWpFClRnclI5OWNqUVdsdzFhSVF0YUhkSmVqYXdYcU50YU1FMSt4RlJBQTNCWUF1T3BveW9wQ0NoMXdJaTEvQk84TlQKVmFaancxQU8xd1ZUaTJ3SUtCSUp1Z0N2T0dYZEt3YzBuL0I4bzRRQkpScklRZEJnbzJVNjFBbkMxaWM4b0d3RwpxekN1V0dDenZjam9xNWFNcTliS0YyNHBQaDR3cWZMZnZGdWNsYmFIUlBiSmpxT3l0V3gzczhNV0lvRUNzdlhLCnhIYmJvSnU0c1AwLzRBMGQ4K25OOXI1MU8xalFaWHd0b3hwenFTV2ZlZz09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0=
+
+monitoring:
+  prometheus_service_account: system:serviceaccount:monitoring:prometheus-k8s
+
+active_directory:
+  base: DC=domain,DC=com
+  host: "apacheds.activedirectory.svc"
+  port: "10636"
+  bind_dn: "cn=ou_svc_account,ou=Users,DC=domain,DC=com"
+  con_type: ldaps
+  srv_dns: "false"
+       
+network_policies:
+  enabled: false
+  ingress:
+    enabled: true
+    labels:
+      app.kubernetes.io/name: ingress-nginx
+  monitoring:
+    enabled: true
+    labels:
+      app.kubernetes.io/name: monitoring
+  apiserver:
+    enabled: false
+    labels:
+      app.kubernetes.io/name: kube-system
+
+services:
+  enable_tokenrequest: false
+  token_request_audience: api
+  token_request_expiration_seconds: 600
+  node_selectors: []
+  liveness_probe:
+  - /usr/local/openunison/bin/check_alive.sh
+  - https://127.0.0.1:8443/auth/idp/k8sIdp/.well-known/openid-configuration
+  - issuer
+  - https://127.0.0.1:8443/check_alive
+  - Anonymous
+  readiness_probe:
+  - /usr/local/openunison/bin/check_alive.sh
+  - https://127.0.0.1:8443/auth/idp/k8sIdp/.well-known/openid-configuration
+  - issuer
+  - https://127.0.0.1:8443/check_alive
+  - Anonymous
+  
+openunison:
+  replicas: 1
+  non_secret_data:
+    K8S_DB_SSO: oidc
+  secrets: []
+  html:
+    image: docker.io/tremolosecurity/openunison-k8s-html
+  enable_provisioning: false
+
+myvd_configmap: myvd-book
