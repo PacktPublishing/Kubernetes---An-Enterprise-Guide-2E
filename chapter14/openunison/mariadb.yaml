@@ -1,6 +1,4 @@
 ---
-apiVersion: v1
----
 apiVersion: constraints.gatekeeper.sh/v1beta1
 kind: K8sPSPAllowPrivilegeEscalationContainer
 metadata:
@@ -133,6 +131,7 @@ spec:
         - min: 100
           max: 4294967294
 ---
+apiVersion: v1
 kind: Namespace
 metadata:
   name: mariadb
