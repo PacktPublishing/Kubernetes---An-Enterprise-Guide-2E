@@ -37,6 +37,7 @@ spec:
     - kube-system
     - calico-system
     - local-path-storage
+    - gitlab
   parameters:
     pathTests:
     - subPath: "spec.securityContext.fsGroup"
@@ -59,6 +60,7 @@ spec:
     - kube-system
     - calico-system
     - local-path-storage
+    - gitlab
   parameters:
     pathTests:
       - subPath: "spec.containers[name:*].securityContext.runAsNonRoot"
@@ -81,6 +83,7 @@ spec:
     - kube-system
     - calico-system
     - local-path-storage
+    - gitlab
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsGroup"
@@ -103,6 +106,7 @@ spec:
     - kube-system
     - calico-system
     - local-path-storage
+    - gitlab
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsUser"
@@ -125,6 +129,7 @@ spec:
     - kube-system
     - calico-system
     - local-path-storage
+    - gitlab
   parameters:
     pathTests:
     - subPath: "spec.securityContext.supplementalGroups"
@@ -146,6 +151,7 @@ spec:
     - kube-system
     - calico-system
     - local-path-storage
+    - gitlab
   location: "spec.containers[name:*].securityContext.capabilities.drop"
   parameters:
     assign:
