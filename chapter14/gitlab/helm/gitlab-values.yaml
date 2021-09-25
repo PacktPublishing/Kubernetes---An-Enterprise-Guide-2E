@@ -57,9 +57,8 @@ global:
       cert-manager.io/cluster-issuer: ca-issuer
     enabled: true
     class: nginx
-    tls: {}
-    #   enabled: true
-    #   secretName:
+    tls:
+      secretName: gitlab-wildcard-tls
 
   gitlab:
     ## Enterprise license for this GitLab installation

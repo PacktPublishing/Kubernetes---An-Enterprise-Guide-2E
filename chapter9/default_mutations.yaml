@@ -13,6 +13,7 @@ spec:
     - kube-system
     - calico-system
     - local-path-storage
+    - gitlab
   location: "spec.containers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
     pathTests:
