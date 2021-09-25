@@ -40,7 +40,7 @@ global:
     allowClusterRoles: true
   ## doc/charts/globals.md#configure-host-settings
   hosts:
-    domain: IPADDR.nip.io
+    domain: apps.IPADDR.nip.io
     hostSuffix:
     https: true
     externalIP:
