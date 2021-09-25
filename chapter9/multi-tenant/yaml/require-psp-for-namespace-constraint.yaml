@@ -20,3 +20,4 @@ spec:
     - activedirectory
     - cert-manager
     - docker-registry
+    - gitlab
