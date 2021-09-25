@@ -21,7 +21,7 @@ spec:
         kinds: ["Pod"]
     namespaces: ["gitlab"]
   parameters:
-    requiredDropCapabilities: ["all"]
+    requiredDropCapabilities: []
     allowedCapabilities: []
 ---
 apiVersion: constraints.gatekeeper.sh/v1beta1
@@ -112,16 +112,6 @@ spec:
   parameters:
     runAsUser:
       rule: MustRunAs # MustRunAsNonRoot # RunAsAny 
-      ranges:
-        - min: 100
-          max: 4294967294
-    runAsGroup:
-      rule: MustRunAs # MayRunAs # RunAsAny 
-      ranges:
-        - min: 100
-          max: 4294967294
-    supplementalGroups:
-      rule: MustRunAs # MayRunAs # RunAsAny 
       ranges:
         - min: 100
           max: 4294967294
