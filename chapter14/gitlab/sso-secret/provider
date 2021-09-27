@@ -14,4 +14,4 @@ args:
   client_options:
     identifier: gitlab
     secret: secret
-    redirect_uri: https://gitlab.IPADDR.nip.io/users/auth/openid_connect/callback
+    redirect_uri: https://gitlab.apps.IPADDR.nip.io/users/auth/openid_connect/callback
