@@ -1,0 +1,12 @@
+FROM ubuntu:18.04
+
+RUN apt-get update;apt-get -y install git curl apt-transport-https gnupg && \
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - && \
+    echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" > /etc/apt/sources.list.d/kubernetes.list && \
+    apt-get update; apt-get install -y kubectl ; apt-get -y upgrade;apt-get clean;rm -rf /var/lib/apt/lists/*; \
+    groupadd -r gituser -g 433 && \
+    mkdir /usr/local/gituser && \
+    useradd -u 431 -r -g gituser -d /usr/local/gituser -s /sbin/nologin -c "git user" gituser && \
+    chown -R gituser:gituser /usr/local/gituser 
+
+USER 431
