@@ -41,6 +41,7 @@ echo -e "\n*********************************************************************
 echo -e "Deploying Elasticsearch, Filebeats and Kibana"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
+kubectl create -f elastic-deploy.yaml
 kubectl create -f eck-filebeats.yaml
 
 tput setaf 5
@@ -50,6 +51,21 @@ echo -e "***********************************************************************
 tput setaf 2
 export hostip=$(hostname  -I | cut -f1 -d' ')
 envsubst < kibana-ingress.yaml | kubectl create -f - --namespace logging
+
+tput setaf 5
+echo -e "\n*******************************************************************************************************************"
+echo -e "Waiting for the Elastic Seach pod to become healthy, this can take a 3-4 minutes"
+echo -e "*******************************************************************************************************************"
+tput setaf 2
+while [ "$(kubectl get pods -l=statefulset.kubernetes.io/pod-name='elasticsearch-es-logging-0' -n logging -o jsonpath='{.items[*].status.containerStatuses[0].ready}')" != "true" ];
+do
+   sleep 5
+   echo -e "\nWaiting for the ElasticSearch pod to start."
+done
+
+tput setaf 3
+echo -e "\nSuccess... ElasticSearch is running\n"
+
 
 export PASSWORD=$(kubectl get secret elasticsearch-es-elastic-user -n logging -o go-template='{{.data.elastic | base64decode}}')
 
