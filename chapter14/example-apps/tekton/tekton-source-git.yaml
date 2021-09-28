@@ -1,0 +1,12 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: git-source-resource
+  namespace:  python-hello-build
+spec:
+  params:
+  - name: url
+    value: git@gitlab-gitlab-shell.gitlab.svc.cluster.local:root/hello-python.git
+  - name: revision
+    value: master
+  type: git

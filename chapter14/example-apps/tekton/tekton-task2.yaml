@@ -1,0 +1,43 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-hello-python
+  namespace: python-hello-build
+spec:
+  params:
+  - default: $(resources.inputs.docker-source.path)/Dockerfile
+    description: The path to the dockerfile to build
+    name: pathToDockerFile
+    type: string
+  - default: $(resources.inputs.docker-source.path)
+    description: |
+      The build context used by Kaniko
+      (https://github.com/GoogleContainerTools/kaniko#kaniko-build-contexts)
+    name: pathToContext
+    type: string
+  - default: $(tasks.generate-image-tag.results.image-url)
+    description: image url
+    name: imageURL
+    type: string
+  resources:
+    inputs:
+    - name: git-resource
+      type: git
+    outputs:
+    - name: result-image
+      type: image
+  steps:
+  - args:
+    - --dockerfile=$(params.pathToDockerFile)
+    - --destination=$(params.imageURL)
+    - --context=$(params.pathToContext)
+    - --verbosity=debug
+    - --skip-tls-verify
+    command:
+    - /kaniko/executor
+    env:
+    - name: DOCKER_CONFIG
+      value: /tekton/home/.docker/
+    image: gcr.io/kaniko-project/executor:v0.16.0
+    name: build-and-push
+    resources: {}

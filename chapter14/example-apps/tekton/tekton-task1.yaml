@@ -1,0 +1,31 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: generate-image-tag
+  namespace: python-hello-build
+spec:
+  results:
+    - name: image-url
+      description: the image url including the tag with the current timestamp
+    - name: commit-tag
+      description: the tag associated with the latest commit
+  resources:
+    inputs:
+    - name: git-resource
+      type: git
+    outputs:
+    - name: result-image
+      type: image
+  steps:
+  - name: create-image-tag
+    image: docker.apps.192-168-2-114.nip.io/gitcommit/gitcommit
+    script: |-
+      #!/usr/bin/env bash
+      export IMAGE_TAG=$(date +"%m%d%Y%H%M%S")
+      echo -n "$(resources.outputs.result-image.url):$IMAGE_TAG" > /tekton/results/image-url
+      echo "'$(cat /tekton/results/image-url)'"
+
+      cd $(resources.inputs.git-resource.path)
+      RESULT_SHA="$(git rev-parse HEAD | tr -d '\n')"
+      echo "Last commit : $RESULT_SHA"
+      echo -n "$RESULT_SHA" > /tekton/results/commit-tag

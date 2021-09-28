@@ -1,0 +1,110 @@
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: gitlab-build-template
+  namespace: python-hello-build
+spec:
+  resourcetemplates:
+  - apiVersion: tekton.dev/v1alpha1
+    kind: PipelineRun
+    metadata:
+      generateName: build-python-hello-build
+    spec:
+      serviceAccountName: tekton-build
+      pipelineRef:
+        name: build-hello-pipeline
+      resources:
+        - name: git-source-resource
+          resourceRef:
+            name: git-source-resource
+        - name: result-image
+          resourceRef:
+            name: result-image
+      params:
+      - name: gitPushUrl
+        value: git@gitlab-write-shell.gitlab.svc.cluster.local:root/hello-python-operations.git
+      workspaces:
+      - name: output
+        emptyDir: {}
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerBinding
+metadata:
+  name: gitlab-push-binding
+  namespace: python-hello-build
+spec: {}
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: gitlab-secret
+  namespace: python-hello-build
+data:
+  secretToken: bm90YWdvb2RzZWNyZXQ=
+type: Opaque
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tekton-triggers-gitlab-sa
+  namespace: python-hello-build
+secrets:
+- name: gitlab-secret
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tekton-triggers-gitlab-binding
+  namespace: python-hello-build
+subjects:
+- kind: ServiceAccount
+  name: tekton-triggers-gitlab-sa
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tekton-triggers-gitlab-minimal
+---
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: gitlab-listener
+  namespace: python-hello-build
+spec:
+  serviceAccountName: tekton-triggers-gitlab-sa
+  triggers:
+  - name: gitlab-push-events-trigger
+    interceptors:
+    - gitlab:
+        secretRef:
+          secretName: gitlab-secret
+          secretKey: secretToken
+        eventTypes:
+        - Push Hook
+    bindings:
+    - ref: gitlab-push-binding
+    template:
+      name: gitlab-build-template
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: gitlab-webhook
+  namespace: python-hello-build
+  annotations:
+    cert-manager.io/cluster-issuer: ca-issuer
+spec:
+  rules:
+  - host: "python-hello-application.build.192-168-2-114.nip.io"
+    http:
+      paths:
+      - backend:
+          serviceName: el-gitlab-listener
+          servicePort: 8080
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - "python-hello-application.build.192-168-2-114.nip.io"
+    secretName: ingresssecret
+
+

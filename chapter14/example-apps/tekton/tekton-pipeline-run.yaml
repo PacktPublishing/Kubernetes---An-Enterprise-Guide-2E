@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  name: build-hello-pipeline-run
+  namespace:  python-hello-build
+spec:
+  serviceAccountName: tekton-build
+  pipelineRef:
+    name: build-hello-pipeline
+  resources:
+    - name: git-source-resource
+      resourceRef:
+        name: git-source-resource
+    - name: result-image
+      resourceRef:
+        name: result-image
+  params:
+  - name: gitPushUrl
+    value: git@gitlab-write-shell.gitlab.svc.cluster.local:root/hello-python-operations.git
+  workspaces:
+  - name: output
+    emptyDir: {}
