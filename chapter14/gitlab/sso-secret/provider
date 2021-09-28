@@ -1,0 +1,17 @@
+name: openid_connect
+label: OpenUnison
+args:
+  name: openid_connect
+  scope:
+    - openid
+    - profile
+  response_type: code
+  issuer: https://k8sou.apps.IPADDR.nip.io/auth/idp/k8sIdp
+  discovery: true
+  client_auth_method: query
+  uid_field: sub
+  send_scope_to_token_endpoint: false
+  client_options:
+    identifier: gitlab
+    secret: secret
+    redirect_uri: https://gitlab.apps.IPADDR.nip.io/users/auth/openid_connect/callback

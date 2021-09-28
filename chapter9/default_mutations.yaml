@@ -12,6 +12,8 @@ spec:
     excludedNamespaces:
     - kube-system
     - calico-system
+    - local-path-storage
+    - gitlab
   location: "spec.containers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
     pathTests:
@@ -34,6 +36,8 @@ spec:
     excludedNamespaces:
     - kube-system
     - calico-system
+    - local-path-storage
+    - gitlab
   parameters:
     pathTests:
     - subPath: "spec.securityContext.fsGroup"
@@ -55,6 +59,8 @@ spec:
     excludedNamespaces:
     - kube-system
     - calico-system
+    - local-path-storage
+    - gitlab
   parameters:
     pathTests:
       - subPath: "spec.containers[name:*].securityContext.runAsNonRoot"
@@ -76,6 +82,8 @@ spec:
     excludedNamespaces:
     - kube-system
     - calico-system
+    - local-path-storage
+    - gitlab
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsGroup"
@@ -97,6 +105,8 @@ spec:
     excludedNamespaces:
     - kube-system
     - calico-system
+    - local-path-storage
+    - gitlab
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsUser"
@@ -118,6 +128,8 @@ spec:
     excludedNamespaces:
     - kube-system
     - calico-system
+    - local-path-storage
+    - gitlab
   parameters:
     pathTests:
     - subPath: "spec.securityContext.supplementalGroups"
@@ -138,6 +150,8 @@ spec:
     excludedNamespaces:
     - kube-system
     - calico-system
+    - local-path-storage
+    - gitlab
   location: "spec.containers[name:*].securityContext.capabilities.drop"
   parameters:
     assign:
