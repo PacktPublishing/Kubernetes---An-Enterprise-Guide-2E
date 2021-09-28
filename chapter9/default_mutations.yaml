@@ -54,7 +54,7 @@ spec:
   - groups: [""]
     kinds: ["Pod"]
     versions: ["v1"]
-  location: "spec.securityContext.fsGroup"
+  location: "spec.containers[name:*].securityContext.fsGroup"
   match:
     excludedNamespaces:
     - kube-system
@@ -63,7 +63,30 @@ spec:
     - gitlab
   parameters:
     pathTests:
-    - subPath: "spec.securityContext.fsGroup"
+    - subPath: "spec.containers[name:*].securityContext.fsGroup"
+      condition: MustNotExist
+    assign:
+      value: 3000
+---
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
+  name: k8spspfsgroupinit
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Pod"]
+    versions: ["v1"]
+  location: "spec.initContainers[name:*].securityContext.fsGroup"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
+    - local-path-storage
+    - gitlab
+  parameters:
+    pathTests:
+    - subPath: "spec.initContainers[name:*].securityContext.fsGroup"
       condition: MustNotExist
     assign:
       value: 3000
