@@ -113,7 +113,7 @@ spec:
     runAsUser:
       rule: MustRunAs # MustRunAsNonRoot # RunAsAny 
       ranges:
-        - min: 100
+        - min: 0
           max: 4294967294
     runAsGroup:
       rule: MustRunAs # MayRunAs # RunAsAny 
@@ -123,7 +123,7 @@ spec:
     supplementalGroups:
       rule: MustRunAs # MayRunAs # RunAsAny 
       ranges:
-        - min: 100
+        - min: 0
           max: 4294967294
     fsGroup:
       rule: MustRunAs # MayRunAs # RunAsAny 
