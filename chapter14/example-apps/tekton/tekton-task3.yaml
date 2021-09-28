@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Task
 metadata:
   name: patch-deployment
+  namespace: python-hello-build
 spec:
   volumes:
   - name: push-secret
