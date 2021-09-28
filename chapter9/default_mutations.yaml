@@ -25,6 +25,29 @@ spec:
 apiVersion: mutations.gatekeeper.sh/v1alpha1
 kind: Assign
 metadata:
+  name: k8spspdefaultallowprivilegeescalationinit
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Pod"]
+    versions: ["v1"]
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
+    - local-path-storage
+    - gitlab
+  location: "spec.initContainers[name:*].securityContext.allowPrivilegeEscalation"
+  parameters:
+    pathTests:
+    - subPath: "spec.initContainers[name:*].securityContext.allowPrivilegeEscalation"
+      condition: MustNotExist
+    assign:
+      value: false
+---
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
   name: k8spspfsgroup
 spec:
   applyTo:
@@ -71,6 +94,29 @@ spec:
 apiVersion: mutations.gatekeeper.sh/v1alpha1
 kind: Assign
 metadata:
+  name: k8spsprunasnonrootinit
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Pod"]
+    versions: ["v1"]
+  location: "spec.initContainers[name:*].securityContext.runAsNonRoot"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
+    - local-path-storage
+    - gitlab
+  parameters:
+    pathTests:
+      - subPath: "spec.initContainers[name:*].securityContext.runAsNonRoot"
+        condition: MustNotExist
+    assign:
+      value: true
+---
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
   name: k8spsprunasgroup
 spec:
   applyTo:
@@ -94,6 +140,29 @@ spec:
 apiVersion: mutations.gatekeeper.sh/v1alpha1
 kind: Assign
 metadata:
+  name: k8spsprunasgroupinit
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Pod"]
+    versions: ["v1"]
+  location: "spec.initContainers[name:*].securityContext.runAsGroup"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
+    - local-path-storage
+    - gitlab
+  parameters:
+    pathTests:
+    - subPath: "spec.initContainers[name:*].securityContext.runAsGroup"
+      condition: MustNotExist
+    assign:
+      value: 2000
+---
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
   name: k8spsprunasuser
 spec:
   applyTo:
@@ -110,6 +179,29 @@ spec:
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsUser"
+      condition: MustNotExist
+    assign:
+      value: 1000
+---
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
+  name: k8spsprunasuserinit
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Pod"]
+    versions: ["v1"]
+  location: "spec.initContainers[name:*].securityContext.runAsUser"
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
+    - local-path-storage
+    - gitlab
+  parameters:
+    pathTests:
+    - subPath: "spec.initContainers[name:*].securityContext.runAsUser"
       condition: MustNotExist
     assign:
       value: 1000
@@ -153,6 +245,26 @@ spec:
     - local-path-storage
     - gitlab
   location: "spec.containers[name:*].securityContext.capabilities.drop"
+  parameters:
+    assign:
+      value: ["all"] # drop all capabilities by default
+---
+apiVersion: mutations.gatekeeper.sh/v1alpha1
+kind: Assign
+metadata:
+  name: k8spspcapabilitiesinit
+spec:
+  applyTo:
+  - groups: [""]
+    kinds: ["Pod"]
+    versions: ["v1"]
+  match:
+    excludedNamespaces:
+    - kube-system
+    - calico-system
+    - local-path-storage
+    - gitlab
+  location: "spec.initContainers[name:*].securityContext.capabilities.drop"
   parameters:
     assign:
       value: ["all"] # drop all capabilities by default
