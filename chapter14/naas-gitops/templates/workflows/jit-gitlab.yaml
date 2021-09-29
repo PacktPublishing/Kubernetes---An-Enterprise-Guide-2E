@@ -23,6 +23,11 @@ spec:
       className: com.tremolosecurity.provisioning.customTasks.LoadGroups
       params:
         nameAttr: uid
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.customTasks.PrintUserInfo
+      params:
+        message: "pre-map-gitlab"
     
     - taskType: mapping
       strict: true
