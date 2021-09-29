@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/instance: openunison-{{ .Release.Name }}
     app.kubernetes.io/component: tketondb-sso
     app.kubernetes.io/part-of: openunison
-  name: gitlab
+  name: tekton-db
   namespace: {{ .Release.Namespace }}
 spec:
   accessTokenSkewMillis: 120000
@@ -20,6 +20,6 @@ spec:
   codeTokenSkewMilis: 60000
   publicEndpoint: false
   redirectURI:
-  - https://#[OU_HOST]/auth/oidc
+  - https://{{ .Values.openunison.non_secret_data.tektondashboard_host }}/auth/oidc
   signedUserInfo: true
   verifyRedirect: true
