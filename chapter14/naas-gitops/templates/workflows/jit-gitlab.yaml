@@ -40,7 +40,7 @@ spec:
           sourceType: composite
           targetAttributeSource: "${givenName} ${sn}"
       onSuccess:
-      - taskType: ifAttrHaValue
+      - taskType: ifAttrHasValue
         name: groups
         value: k8s-cluster-k8s-administrators
         onSuccess:
