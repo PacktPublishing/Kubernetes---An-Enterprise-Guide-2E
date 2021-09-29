@@ -11,7 +11,7 @@ metadata:
 spec:
   accessTokenSkewMillis: 120000
   accessTokenTimeToLive: 60000
-  authChainName: entperprise-idp
+  authChainName: login-service
   clientId: gitlab
   clientSecret:
     keyName: gitlab
