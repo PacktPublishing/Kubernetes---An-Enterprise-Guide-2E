@@ -87,7 +87,7 @@ spec:
                 request.put(GitlabUserProvider.GITLAB_GROUP_ENTITLEMENTS,groupmap);
 
                 isAdmin = new Attribute("isAdmin", foundAdmin ? "true" : "false");
-                user.getAttrs().put("isAdmin",isAdmin);
+                user.getAttribs().put("isAdmin",isAdmin);
                 return true;
             }
       - taskType: customTask
