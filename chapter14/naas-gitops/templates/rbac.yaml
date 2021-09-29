@@ -5,7 +5,7 @@ metadata:
   name: openunison-{{ .Release.Name }}-cluster-administrators
 subjects:
 - kind: Group
-  name: k8s-cluster-administrators
+  name: k8s-cluster-k8s-administrators
   apiGroup: rbac.authorization.k8s.io
 - kind: ServiceAccount
   name: openunison-{{ .Values.openunison.orchestra_release_name }}
