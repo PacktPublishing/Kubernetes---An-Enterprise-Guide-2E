@@ -21,6 +21,9 @@ spec:
   - name: username
     source: username
     sourceType: user
+  - name: name
+    source: name
+    sourceType: user
   - name: email
     source: email
     sourceType: user
