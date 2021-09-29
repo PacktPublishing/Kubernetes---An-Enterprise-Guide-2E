@@ -1,0 +1,42 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: AuthenticationChain
+metadata:
+  name: tektondb-oidc
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: tketondb-sso
+    app.kubernetes.io/part-of: openunison
+spec:
+  level: 20
+  root: o=Tremolo
+  authMechs:
+  - name: oidc
+    required: required
+    params:
+      bearerTokenName: k8s-ou
+      clientid: tekton-db
+      responseType: code
+      idpURL: "https://#[OU_HOST]/auth/idp/k8sIdp/auth"
+      loadTokenURL: "https://#[OU_HOST]/auth/idp/k8sIdp/token"
+      scope: "openid name offline"
+      linkToDirectory: "true"
+      noMatchOU: "oidc"
+      lookupFilter: "(sub=${sub})"
+      defaultObjectClass: inetOrgPerson
+      uidAttr: sub
+      hd: ""
+      userLookupClassName: com.tremolosecurity.unison.proxy.auth.openidconnect.loadUser.LoadJWTFromAccessToken
+      jwtTokenAttributeName: id_token
+    secretParams:
+    - name: secretid
+      secretName: orchestra-secrets-source
+      secretKey: K8S_DB_SECRET
+  - name: genoidctoken
+    required: required
+    params:
+      idpName: k8sidp
+      trustName: kubernetes
+      overrideURL: "https://#[OU_HOST]/auth/idp/k8sIdp"

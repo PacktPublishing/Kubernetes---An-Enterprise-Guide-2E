@@ -94,6 +94,7 @@ openunison:
   non_secret_data:
     K8S_DB_SSO: oidc
     GITLAB_URL: https://gitlab.apps.IPADDR.nip.io
+    tektondashboard_host: tekton.apps.IPADDR.nip.io
   secrets: []
   html:
     image: docker.io/tremolosecurity/openunison-k8s-html
