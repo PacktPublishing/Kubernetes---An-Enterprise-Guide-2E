@@ -1,0 +1,143 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myvd-book
+  namespace: {{.Release.Namespace}}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: myvd
+    app.kubernetes.io/part-of: openunison
+data:
+  myvd.conf: |-
+    #Global AuthMechConfig
+    server.globalChain=accesslog
+
+    server.globalChain.accesslog.className=com.tremolosecurity.proxy.myvd.log.AccessLog
+
+    server.nameSpaces=rootdse,myvdroot,shadow,shadowUsers,shadowGroups,activedirectory
+    server.rootdse.chain=createTables,dse
+    server.rootdse.nameSpace=
+    server.rootdse.weight=0
+    server.rootdse.dse.className=net.sourceforge.myvd.inserts.RootDSE
+    server.rootdse.dse.config.namingContexts=o=Tremolo
+
+    server.rootdse.createTables.className=com.tremolosecurity.unison.k8s.dataobjects.CreateLocalUsers
+    server.rootdse.createTables.config.driver=#[OU_JDBC_DRIVER]
+    server.rootdse.createTables.config.url=#[OU_JDBC_URL]
+    server.rootdse.createTables.config.user=#[OU_JDBC_USER]
+    server.rootdse.createTables.config.password=#[OU_JDBC_PASSWORD]
+    server.rootdse.createTables.config.dialect=#[OU_HIBERNATE_DIALECT]
+
+    server.myvdroot.chain=root
+    server.myvdroot.nameSpace=o=Tremolo
+    server.myvdroot.weight=0
+    server.myvdroot.root.className=net.sourceforge.myvd.inserts.RootObject
+
+    server.shadow.chain=entry
+    server.shadow.nameSpace=ou=shadow,o=Tremolo
+    server.shadow.weight=0
+    server.shadow.entry.className=net.sourceforge.myvd.inserts.RootObject
+
+    server.shadowUsers.chain=loadGroups,map,makesub,tremolo
+    server.shadowUsers.nameSpace=ou=users,ou=shadow,o=Tremolo
+    server.shadowUsers.weight=0
+    server.shadowUsers.enabled=true
+    server.shadowUsers.logit.className=net.sourceforge.myvd.inserts.DumpTransaction
+    server.shadowUsers.logit.config.logLevel=info
+    server.shadowUsers.logit.config.label=fromdb
+    server.shadowUsers.loadGroups.className=com.tremolosecurity.proxy.myvd.inserts.AddGroupsFromProvisioningTarget
+    server.shadowUsers.loadGroups.config.attributeName=groups
+    server.shadowUsers.loadGroups.config.targetName=jitdb
+    server.shadowUsers.loadGroups.config.uidAttribute=uid
+    server.shadowUsers.loadGroups.config.label=
+    server.shadowUsers.map.className=net.sourceforge.myvd.inserts.mapping.AttributeMapper
+    server.shadowUsers.map.config.mapping=givenName=givenname
+    server.shadowUsers.makesub.className=net.sourceforge.myvd.inserts.mapping.CopyAttirbute
+    server.shadowUsers.makesub.config.sourceAttribute=uid
+    server.shadowUsers.makesub.config.targetAttribute=sub
+    server.shadowUsers.tremolo.className=net.sourceforge.myvd.inserts.jdbc.JdbcInsert
+    server.shadowUsers.tremolo.config.driver=#[OU_JDBC_DRIVER]
+    server.shadowUsers.tremolo.config.url=#[OU_JDBC_URL]
+    server.shadowUsers.tremolo.config.user=#[OU_JDBC_USER]
+    server.shadowUsers.tremolo.config.password=#[OU_JDBC_PASSWORD]
+    server.shadowUsers.tremolo.config.maxCons=10
+    server.shadowUsers.tremolo.config.maxConsIdle=10
+    server.shadowUsers.tremolo.config.validationQuery=#[OU_JDBC_VALIDATION]
+    server.shadowUsers.tremolo.config.rdn=uid
+    server.shadowUsers.tremolo.config.useSimple=true
+    server.shadowUsers.tremolo.config.addBaseToFilter=false
+    server.shadowUsers.tremolo.config.objectClass=inetOrgPerson
+    server.shadowUsers.tremolo.config.mapping=mail=mail,uid=sub,givenname=firstName,sn=lastName
+    server.shadowUsers.tremolo.config.sql=SELECT mail,sub,firstName,lastName FROM localUsers
+
+    server.shadowGroups.chain=dbgroups,tremolo
+    server.shadowGroups.nameSpace=ou=groups,ou=shadow,o=Tremolo
+    server.shadowGroups.weight=0
+    server.shadowGroups.enabled=true
+    server.shadowGroups.dbgroups.className=net.sourceforge.myvd.inserts.jdbc.DBGroups
+    server.shadowGroups.dbgroups.config.memberAttribute=uniqueMember
+    server.shadowGroups.dbgroups.config.suffix=ou=users,ou=shadow,o=Tremolo
+    server.shadowGroups.dbgroups.config.rdn=uid
+    server.shadowGroups.tremolo.className=net.sourceforge.myvd.inserts.jdbc.JdbcInsert
+    server.shadowGroups.tremolo.config.driver=#[OU_JDBC_DRIVER]
+    server.shadowGroups.tremolo.config.url=#[OU_JDBC_URL]
+    server.shadowGroups.tremolo.config.user=#[OU_JDBC_USER]
+    server.shadowGroups.tremolo.config.password=#[OU_JDBC_PASSWORD]
+    server.shadowGroups.tremolo.config.maxCons=10
+    server.shadowGroups.tremolo.config.maxConsIdle=10
+    server.shadowGroups.tremolo.config.validationQuery=#[OU_JDBC_VALIDATION]
+    server.shadowGroups.tremolo.config.rdn=cn
+    server.shadowGroups.tremolo.config.useSimple=true
+    server.shadowGroups.tremolo.config.addBaseToFilter=false
+    server.shadowGroups.tremolo.config.objectClass=groupOfUniqueNames
+    server.shadowGroups.tremolo.config.mapping=cn=name,uniqueMember=sub
+    server.shadowGroups.tremolo.config.sql=SELECT name,sub FROM localGroups LEFT OUTER JOIN userGroups ON localGroups.groupId=userGroups.groupId LEFT OUTER JOIN localUsers ON userGroups.userId=localUsers.userId
+
+    server.activedirectory.chain=objectguid2text,dnmapper,memberofmapper,memberof,objmap,membertrans,ldap
+    server.activedirectory.nameSpace=ou=activedirectory,o=Data
+    server.activedirectory.weight=0
+    server.activedirectory.enabled=true
+    server.activedirectory.objectguid2text.className=com.tremolosecurity.proxy.myvd.inserts.util.UUIDtoText
+    server.activedirectory.objectguid2text.config.attributeName=objectGUID
+    server.activedirectory.memberofmapper.className=net.sourceforge.myvd.inserts.mapping.DNAttributeMapper
+    server.activedirectory.memberofmapper.config.dnAttribs=memberOf
+    server.activedirectory.memberofmapper.config.remoteBase=ou=activedirectory,o=Data
+    server.activedirectory.memberofmapper.config.localBase=DC=domain,DC=com
+    server.activedirectory.memberofmapper.config.urlAttribs=
+    server.activedirectory.dnmapper.className=net.sourceforge.myvd.inserts.mapping.DNAttributeMapper
+    server.activedirectory.dnmapper.config.dnAttribs=member,owner,member,distinguishedName,manager
+    server.activedirectory.dnmapper.config.remoteBase=DC=domain,DC=com
+    server.activedirectory.dnmapper.config.localBase=ou=activedirectory,o=Data
+    server.activedirectory.dnmapper.config.urlAttribs=
+    server.activedirectory.memberof.className=net.sourceforge.myvd.inserts.mapping.VirtualMemberOf
+    server.activedirectory.memberof.config.searchBase=ou=activedirectory,o=Data
+    server.activedirectory.memberof.config.applyToObjectClass=inetOrgPerson
+    server.activedirectory.memberof.config.attributeName=memberOf
+    server.activedirectory.memberof.config.searchObjectClass=groupOfNames
+    server.activedirectory.memberof.config.searchAttribute=member
+    server.activedirectory.memberof.config.replace=false
+    server.activedirectory.objmap.className=net.sourceforge.myvd.inserts.mapping.AttributeValueMapper
+    server.activedirectory.objmap.config.mapping=objectClass.inetOrgPerson=user,objectClass.groupofnames=group
+    server.activedirectory.membertrans.className=net.sourceforge.myvd.inserts.mapping.AttributeMapper
+    server.activedirectory.membertrans.config.mapping=member=member,uid=samAccountName
+    server.activedirectory.ldap.className=com.tremolosecurity.proxy.myvd.inserts.ad.ADLdapInsert
+    server.activedirectory.ldap.config.host=apacheds.activedirectory.svc
+    server.activedirectory.ldap.config.port=10636
+    server.activedirectory.ldap.config.remoteBase=DC=domain,DC=com
+    server.activedirectory.ldap.config.proxyDN=cn=ou_svc_account,ou=Users,DC=domain,DC=com
+    server.activedirectory.ldap.config.proxyPass=#[AD_BIND_PASSWORD]
+    server.activedirectory.ldap.config.useSrvDNS=false
+    server.activedirectory.ldap.config.ignoreRefs=true
+    server.activedirectory.ldap.config.passBindOnly=true
+    server.activedirectory.ldap.config.maxIdle=90000
+    server.activedirectory.ldap.config.maxMillis=90000
+    server.activedirectory.ldap.config.maxStaleTimeMillis=90000
+    server.activedirectory.ldap.config.minimumConnections=10
+    server.activedirectory.ldap.config.maximumConnections=10
+    server.activedirectory.ldap.config.usePaging=false
+    server.activedirectory.ldap.config.pageSize=0
+    server.activedirectory.ldap.config.heartbeatIntervalMillis=60000
+    server.activedirectory.ldap.config.type=ldaps
+    server.activedirectory.ldap.config.sslSocketFactory=com.tremolosecurity.proxy.ssl.TremoloSSLSocketFactory
