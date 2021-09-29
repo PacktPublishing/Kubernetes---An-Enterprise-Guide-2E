@@ -1,0 +1,35 @@
+apiVersion: openunison.tremolo.io/v1
+kind: Target
+metadata:
+  name: gitlab
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-targets
+    app.kubernetes.io/part-of: openunison
+spec:
+  className: com.tremolosecurity.unison.gitlab.provisioning.targets.GitlabUserProvider
+  params:
+  - name: url
+    value: "{{ .Values.openunison.non_secret_data.GITLAB_URL }}"
+  secretParams:
+  - name: token
+    secretName: orchestra-secrets-source
+    secretKey: GITLAB_TOKEN
+  targetAttributes:
+  - name: username
+    source: username
+    sourceType: user
+  - name: email
+    source: email
+    sourceType: user
+  - name: isAdmin
+    source: isAdmin
+    sourceType: user
+  - name: skipConfirmation
+    source: "true"
+    sourceType: static
+  - name: projectsLimit
+    source: "100000"
+    sourceType: static

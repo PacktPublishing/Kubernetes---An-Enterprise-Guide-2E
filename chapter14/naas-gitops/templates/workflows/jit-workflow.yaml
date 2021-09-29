@@ -106,6 +106,10 @@ spec:
                  - mail
                  - firstName
                  - lastName
+
+               - taskType: callWorkflow
+                 name: jit-gitlab
+                 
                - taskType: resync
                  keepExternalAttrs: false
                  changeRoot: true
