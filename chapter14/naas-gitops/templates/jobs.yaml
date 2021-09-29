@@ -1,0 +1,44 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: OUJob
+metadata:
+  name: reset-allowed-approvers
+  namespace: {{ .Release.Namespace }}
+spec:
+  cronSchedule:
+    seconds: "0"
+    minutes: "*"
+    hours: "*"
+    dayOfMonth: "*"
+    month: "*"
+    dayOfWeek: "?"
+    year: "*"
+  className: com.tremolosecurity.provisioning.scheduler.jobs.UpdateApprovalAz
+  group: management
+  params:
+  - name: queueName
+    value: rebase-queue
+---
+apiVersion: openunison.tremolo.io/v1
+kind: OUJob
+metadata:
+  name: remind-approvers
+  namespace: {{ .Release.Namespace }}
+spec:
+  cronSchedule:
+    seconds: "0"
+    minutes: "0"
+    hours: "9"
+    dayOfMonth: "*"
+    month: "*"
+    dayOfWeek: "?"
+    year: "*"
+  className: com.tremolosecurity.provisioning.scheduler.jobs.UpdateApprovalAz
+  group: management
+  params:
+  - name: message
+    value: The request %L has been open for %D days, please login to act on this request
+  - name: days
+    value: "7"
+  - name: mailAttributeName
+    value: mail

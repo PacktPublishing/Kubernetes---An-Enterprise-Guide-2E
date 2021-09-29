@@ -1,0 +1,16 @@
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: openunison-{{ .Release.Name }}-cluster-administrators
+subjects:
+- kind: Group
+  name: k8s-cluster-administrators
+  apiGroup: rbac.authorization.k8s.io
+- kind: ServiceAccount
+  name: openunison-{{ .Values.openunison.orchestra_release_name }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io

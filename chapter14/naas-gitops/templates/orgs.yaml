@@ -1,0 +1,66 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Org
+metadata:
+  name: approvers
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-orgs
+    app.kubernetes.io/part-of: openunison
+spec:
+  label: "Approvers"
+  azRules:
+  - scope: filter
+    constraint: (groups=approvers-*)
+  description: "List of approver groups.  To add a user to an approver group, request the access for the user to add with an existing approver."
+  parent: B158BD40-0C1B-11E3-8FFD-0800200C9A66
+  showInPortal: false
+  showInReports: false
+  showInRequestAccess: true
+  uuid: f9923cb2-fcc3-4ed0-9b87-f99fa4445344
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Org
+metadata:
+  name: openunison-approvers-and-administrators
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-orgs
+    app.kubernetes.io/part-of: openunison
+spec:
+  label: "OpenUnison Administrators and Approvers"
+  azRules:
+  - scope: group
+    constraint: cn=administrators,ou=groups,ou=shadow,o=Tremolo
+  description: "Manage access to the root administration and approval group"
+  parent: B158BD40-0C1B-11E3-8FFD-0800200C9A66
+  showInPortal: false
+  showInReports: false
+  showInRequestAccess: true
+  uuid: 241f4539-efd9-4e18-8a59-649bf1b79cbe
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Org
+metadata:
+  name: openunison-cluster-administrators
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-orgs
+    app.kubernetes.io/part-of: openunison
+spec:
+  label: "Kubernetes Administration"
+  azRules:
+  - scope: dn
+    constraint: o=Tremolo
+  description: "Request access for managing Kubernetes clusters"
+  parent: B158BD40-0C1B-11E3-8FFD-0800200C9A66
+  showInPortal: false
+  showInReports: false
+  showInRequestAccess: true
+  uuid: 441a2bf1-3e47-4d40-a994-99faa15f997a

@@ -1,0 +1,7 @@
+primaryCluster:
+  name: GitOps Cluster
+  description: Cluster managed by GitOps
+
+openunison:
+  orchestra_release_name: orchestra
+  orchestra_login_portal_name: orchestra-login-portal
