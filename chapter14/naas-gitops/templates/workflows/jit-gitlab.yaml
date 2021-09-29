@@ -76,7 +76,7 @@ spec:
                         groupmap.put(group,30);
                     } else if (group.startsWith("k8s-namespace-operations")) {
                         groupmap.put(group,30);
-                    } else if (group.equals("k8s-cluster-k8s-administrators")) {
+                    } else if (group == "k8s-cluster-k8s-administrators") {
                         foundAdmin = true;
                     }
 
