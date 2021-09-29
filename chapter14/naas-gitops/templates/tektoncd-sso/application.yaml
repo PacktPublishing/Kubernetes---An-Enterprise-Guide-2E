@@ -29,16 +29,8 @@ spec:
     proxyTo: http://tekton-dashboard.tekton-pipelines.svc:9097${fullURI}
     authChain: tektondb-oidc
     azRules:
-    {{ $length := len .Values.az_groups }}
-    {{ if eq $length 0 }}
     - scope: dn
       constraint: o=Tremolo
-    {{ else }}
-    {{ range $az_group := .Values.az_groups }}
-    - scope: filter
-      constraint: (groups={{ $az_group }})
-    {{ end }}
-    {{ end }}
     {{ if not .Values.enable_impersonation }}
     results:
       azSuccess: oauth2bearer
