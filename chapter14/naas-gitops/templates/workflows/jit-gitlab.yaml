@@ -45,18 +45,6 @@ spec:
           sourceType: composite
           targetAttributeSource: "${firstName} ${lastName}"
       onSuccess:
-      - taskType: ifAttrHasValue
-        name: groups
-        value: k8s-cluster-k8s-administrators
-        onSuccess:
-        - taskType: addAttribute
-          name: isAdmin
-          value: "true"
-
-        onFailure:
-        - taskType: addAttribute
-          name: isAdmin
-          value: "false"
       - taskType: customTask
         className: com.tremolosecurity.provisioning.customTasks.JavaScriptTask
         params:
@@ -65,6 +53,7 @@ spec:
 
             HashMap = Java.type("java.util.HashMap");
             GitlabUserProvider = Java.type("com.tremolosecurity.unison.gitlab.provisioning.targets.GitlabUserProvider");
+            Attribute = Java.type("com.tremolosecurity.saml.Attribute");
 
             function init(task,params) {
             // nothing to do
@@ -76,6 +65,7 @@ spec:
 
             function doTask(user,request) {
                 groupmap = new HashMap();
+                var foundAdmin = false;
 
                 for (var i=0;i<user.getGroups().size();i++) {
                     var group = user.getGroups().get(i);
@@ -86,11 +76,18 @@ spec:
                         groupmap.put(group,30);
                     } else if (group.startsWith("k8s-namespace-operations")) {
                         groupmap.put(group,30);
+                    } else if (group.equals("k8s-cluster-k8s-administrators")) {
+                        foundAdmin = true;
                     }
 
-                    request.put(GitlabUserProvider.GITLAB_GROUP_ENTITLEMENTS,groupmap);
+                    
 
                 }
+
+                request.put(GitlabUserProvider.GITLAB_GROUP_ENTITLEMENTS,groupmap);
+
+                isAdmin = new Attribute("isAdmin", foundAdmin ? "true" : "false");
+                user.getAttrs().put("isAdmin",isAdmin);
                 return true;
             }
       - taskType: customTask
@@ -103,7 +100,7 @@ spec:
         className: com.tremolosecurity.provisioning.customTasks.PrintUserInfo
         params:
           message: "pre-provision-gitlab"
-          
+
       - taskType: provision
         sync: true
         target: gitlab
