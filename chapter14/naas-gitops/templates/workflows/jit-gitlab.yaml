@@ -22,7 +22,7 @@ spec:
     - taskType: customTask
       className: com.tremolosecurity.provisioning.customTasks.LoadGroups
       params:
-        nameAttr: uid
+        nameAttr: sub
 
     - taskType: customTask
       className: com.tremolosecurity.provisioning.customTasks.PrintUserInfo
@@ -34,16 +34,16 @@ spec:
       map:
         - targetAttributeName: TREMOLO_USER_ID
           sourceType: user
-          targetAttributeSource: uid
+          targetAttributeSource: sub
         - targetAttributeName: username
           sourceType: user
-          targetAttributeSource: uid
+          targetAttributeSource: sub
         - targetAttributeName: email
           sourceType: user
           targetAttributeSource: mail
         - targetAttributeName: name
           sourceType: composite
-          targetAttributeSource: "${givenName} ${sn}"
+          targetAttributeSource: "${firstName} ${lastName}"
       onSuccess:
       - taskType: ifAttrHasValue
         name: groups
