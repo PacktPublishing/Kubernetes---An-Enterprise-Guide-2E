@@ -75,7 +75,7 @@ spec:
             }
 
             function doTask(user,request) {
-                groupMap = new HashMap();
+                groupmap = new HashMap();
 
                 for (var i=0;i<user.getGroups().size();i++) {
                     var group = user.getGroups().get(i);
