@@ -14,6 +14,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   location: "spec.containers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
     pathTests:
@@ -37,6 +38,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   location: "spec.initContainers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
     pathTests:
@@ -61,6 +63,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   parameters:
     pathTests:
     - subPath: "spec.securityContext.fsGroup"
@@ -84,6 +87,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   parameters:
     pathTests:
       - subPath: "spec.containers[name:*].securityContext.runAsNonRoot"
@@ -107,6 +111,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   parameters:
     pathTests:
       - subPath: "spec.initContainers[name:*].securityContext.runAsNonRoot"
@@ -130,6 +135,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsGroup"
@@ -153,6 +159,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   parameters:
     pathTests:
     - subPath: "spec.initContainers[name:*].securityContext.runAsGroup"
@@ -176,6 +183,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsUser"
@@ -199,6 +207,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   parameters:
     pathTests:
     - subPath: "spec.initContainers[name:*].securityContext.runAsUser"
@@ -222,6 +231,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   parameters:
     pathTests:
     - subPath: "spec.securityContext.supplementalGroups"
@@ -244,6 +254,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   location: "spec.containers[name:*].securityContext.capabilities.drop"
   parameters:
     assign:
@@ -264,6 +275,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - build-*
   location: "spec.initContainers[name:*].securityContext.capabilities.drop"
   parameters:
     assign:
