@@ -22,4 +22,3 @@ spec:
     - docker-registry
     - gitlab
     - docker-registry
-    - python-hello-build
