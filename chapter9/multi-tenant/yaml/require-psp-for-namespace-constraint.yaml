@@ -21,4 +21,4 @@ spec:
     - cert-manager
     - docker-registry
     - gitlab
-    - build-*
+    - build-python-hello
