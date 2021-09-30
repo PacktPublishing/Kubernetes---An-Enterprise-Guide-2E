@@ -8,5 +8,5 @@ spec:
   - name: url
     value: git@gitlab-gitlab-shell.gitlab.svc.cluster.local:root/hello-python.git
   - name: revision
-    value: master
+    value: main
   type: git
