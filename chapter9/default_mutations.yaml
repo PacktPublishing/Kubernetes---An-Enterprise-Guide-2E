@@ -14,6 +14,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   location: "spec.containers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
@@ -38,6 +39,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   location: "spec.initContainers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
@@ -63,6 +65,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   parameters:
     pathTests:
@@ -87,6 +90,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   parameters:
     pathTests:
@@ -111,6 +115,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   parameters:
     pathTests:
@@ -135,6 +140,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   parameters:
     pathTests:
@@ -159,6 +165,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   parameters:
     pathTests:
@@ -183,6 +190,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   parameters:
     pathTests:
@@ -207,6 +215,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   parameters:
     pathTests:
@@ -231,6 +240,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   parameters:
     pathTests:
@@ -254,6 +264,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   location: "spec.containers[name:*].securityContext.capabilities.drop"
   parameters:
@@ -275,6 +286,7 @@ spec:
     - calico-system
     - local-path-storage
     - gitlab
+    - docker-registry
     - python-hello-build
   location: "spec.initContainers[name:*].securityContext.capabilities.drop"
   parameters:
