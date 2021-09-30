@@ -16,7 +16,6 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
   location: "spec.containers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
     pathTests:
@@ -41,7 +40,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   location: "spec.initContainers[name:*].securityContext.allowPrivilegeEscalation"
   parameters:
     pathTests:
@@ -67,7 +66,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   parameters:
     pathTests:
     - subPath: "spec.securityContext.fsGroup"
@@ -92,7 +91,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   parameters:
     pathTests:
       - subPath: "spec.containers[name:*].securityContext.runAsNonRoot"
@@ -117,7 +116,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   parameters:
     pathTests:
       - subPath: "spec.initContainers[name:*].securityContext.runAsNonRoot"
@@ -142,7 +141,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsGroup"
@@ -167,7 +166,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   parameters:
     pathTests:
     - subPath: "spec.initContainers[name:*].securityContext.runAsGroup"
@@ -192,7 +191,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   parameters:
     pathTests:
     - subPath: "spec.containers[name:*].securityContext.runAsUser"
@@ -217,7 +216,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   parameters:
     pathTests:
     - subPath: "spec.initContainers[name:*].securityContext.runAsUser"
@@ -242,7 +241,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   parameters:
     pathTests:
     - subPath: "spec.securityContext.supplementalGroups"
@@ -266,7 +265,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   location: "spec.containers[name:*].securityContext.capabilities.drop"
   parameters:
     assign:
@@ -288,7 +287,7 @@ spec:
     - local-path-storage
     - gitlab
     - docker-registry
-    - python-hello-build
+    
   location: "spec.initContainers[name:*].securityContext.capabilities.drop"
   parameters:
     assign:
