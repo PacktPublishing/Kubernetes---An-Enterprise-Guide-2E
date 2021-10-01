@@ -43,10 +43,11 @@ spec:
             name: argocd-server
             port: 
               name: https
-          path: "/"
-          pathType: Prefix
+        path: "/"
+        pathType: Prefix
     host: grpc-argocd.apps.IPADDR.nip.io
   tls:
   - hosts:
     - grpc-argocd.apps.IPADDR.nip.io
     secretName: argocd-grpc-tls
+    
