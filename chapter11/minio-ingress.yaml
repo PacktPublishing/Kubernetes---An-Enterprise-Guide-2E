@@ -5,7 +5,7 @@ metadata:
   namespace: velero
 spec:
   rules:
-  - host: "minio.$hostip.nip.io"
+  - host: "minio-console.$hostip.nip.io"
     http:
       paths:
       - path: /
@@ -15,4 +15,14 @@ spec:
             name: console
             port: 
               number: 9001
+  - host: "minio.$hostip.nip.io"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: minio
+            port:
+              number: 9000
 
