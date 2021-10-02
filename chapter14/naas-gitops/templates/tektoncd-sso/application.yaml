@@ -1,0 +1,44 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Application
+metadata:
+  name: tekton-dashboard
+  namespace: openunison
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: tketondb-sso
+    app.kubernetes.io/part-of: openunison
+spec:
+  azTimeoutMillis: 3000
+  isApp: true
+  urls:
+  - hosts:
+    - "{{ .Values.openunison.non_secret_data.tektondashboard_host }}"
+    filterChain:
+    - className: com.tremolosecurity.proxy.filters.SetNoCacheHeaders
+    {{ if .Values.enable_impersonation }}
+    - className: com.tremolosecurity.proxy.filters.K8sInjectImpersonation
+      params:
+        targetName: k8s
+        userNameAttribute: sub
+        useLdapGroups: "false"
+        groupAttribute: groups
+    {{ end }}
+    uri: "/"
+    proxyTo: http://tekton-dashboard.tekton-pipelines.svc:9097${fullURI}
+    authChain: tektondb-oidc
+    azRules:
+    - scope: dn
+      constraint: o=Tremolo
+    {{ if not .Values.enable_impersonation }}
+    results:
+      azSuccess: oauth2bearer
+    {{ end }}
+  cookieConfig:
+    sessionCookieName: tremolosession
+    domain: "{{ .Values.openunison.non_secret_data.tektondashboard_host }}"
+    secure: true
+    httpOnly: true
+    logoutURI: "/logout"
+    keyAlias: session-unison

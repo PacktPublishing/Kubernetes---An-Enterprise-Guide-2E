@@ -1,0 +1,116 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: jitdb
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: GitOps JIT
+  inList: false
+  label: GitOps JIT
+  orgId: 687da09f-8ec1-48ac-b035-f2f182b9bd1e
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+           
+           - taskType: customTask
+             className: com.tremolosecurity.provisioning.customTasks.PrintUserInfo
+             params:
+               message: enter-workflow
+
+           - taskType: customTask
+             className: com.tremolosecurity.provisioning.customTasks.LoadGroups
+             params:
+               nameAttr: uid
+           
+           - taskType: mapping
+             strict: true
+             map:
+             - targetAttributeName: TREMOLO_USER_ID
+               sourceType: user
+               targetAttributeSource: uid
+             - targetAttributeName: sub
+               sourceType: user
+               targetAttributeSource: uid
+             - targetAttributeName: mail
+               sourceType: user
+               targetAttributeSource: mail
+             - targetAttributeName: firstName
+               sourceType: user
+               targetAttributeSource: givenName
+             - targetAttributeName: lastName
+               sourceType: user
+               targetAttributeSource: sn
+             onSuccess:
+               - taskType: customTask
+                 className: com.tremolosecurity.provisioning.customTasks.PrintUserInfo
+                 params:
+                   message: in-mapping
+               - taskType: addGroup
+                 name: users
+               - taskType: customTask
+                 className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+                 params:
+                   target: jitdb
+                   name: k8s-cluster-k8s-administrators
+                   attributes:
+                   - unison.group.create.sql=INSERT INTO localGroups (name,description) VALUES (?,?)
+                   - unison.group.create.param.2=Administer k8s
+               - taskType: customTask
+                 className: com.tremolosecurity.provisioning.customTasks.JavaScriptTask
+                 params:
+                   javaScript: |-
+                     // This task adds the administrators group to the first user
+                     // to login
+                     
+                     function init(task,params) {
+                       // nothing to do
+                     }
+
+                     function reInit(task) {
+                       // do nothing
+                     }
+
+                     function doTask(user,request) {
+                       sql = task.getConfigManager().getProvisioningEngine().getTarget("jitdb").getProvider().getDS().getConnection();
+                       try {
+                         rs = sql.createStatement().executeQuery("SELECT COUNT(*) AS num FROM localUsers");
+                         rs.next();
+                         if (rs.getInt("num") == 1) {
+                           // first user, add the admin group and cluster admin group
+                           user.getGroups().add("administrators");
+                           user.getGroups().add("k8s-cluster-k8s-administrators");
+
+                         }
+                       } finally {
+                         sql.close();
+                       }
+
+                       return true;
+                     }
+
+               - taskType: provision
+                 sync: true
+                 target: jitdb
+                 setPassword: false
+                 onlyPassedInAttributes: true
+                 attributes:
+                 - sub
+                 - mail
+                 - firstName
+                 - lastName
+
+               - taskType: callWorkflow
+                 name: jit-gitlab
+                 
+               - taskType: resync
+                 keepExternalAttrs: false
+                 changeRoot: true
+                 newRoot: o=Tremolo

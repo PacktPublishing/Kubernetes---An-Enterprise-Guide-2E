@@ -1,0 +1,132 @@
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowPrivilegeEscalationContainer
+metadata:
+  name: tekton-pipelines-privilege-escalation-deny-all
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPCapabilities
+metadata:
+  name: tekton-pipelines-capabilities-drop-all
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+  parameters:
+    requiredDropCapabilities: ["all"]
+    allowedCapabilities: []
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPForbiddenSysctls
+metadata:
+  name: tekton-pipelines-psp-forbid-all-sysctls
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+  parameters:
+    forbiddenSysctls:
+    - "*"
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostFilesystem
+metadata:
+  name: tekton-pipelines-psp-deny-host-filesystem
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+  parameters:
+    allowedHostPaths: []
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostNamespace
+metadata:
+  name: tekton-pipelines-psp-bloack-all-host-namespace
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostNetworkingPorts
+metadata:
+  name: tekton-pipelines-psp-deny-all-host-network-ports
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+  parameters:
+    hostNetwork: false
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPPrivilegedContainer
+metadata:
+  name: tekton-pipelines-psp-deny-all-privileged-container
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPProcMount
+metadata:
+  name: tekton-pipelines-psp-proc-mount-default
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+  parameters:
+    procMount: Default
+---
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowedUsers
+metadata:
+  name: tekton-pipelines-psp-pods-allowed-user-ranges
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces: ["tekton-pipelines"]
+  parameters:
+    runAsUser:
+      rule: MustRunAs # MustRunAsNonRoot # RunAsAny 
+      ranges:
+        - min: 100
+          max: 4294967294
+    runAsGroup:
+      rule: MustRunAs # MayRunAs # RunAsAny 
+      ranges:
+        - min: 100
+          max: 4294967294
+    supplementalGroups:
+      rule: MustRunAs # MayRunAs # RunAsAny 
+      ranges:
+        - min: 100
+          max: 4294967294
+    fsGroup:
+      rule: MustRunAs # MayRunAs # RunAsAny 
+      ranges:
+        - min: 100
+          max: 4294967294

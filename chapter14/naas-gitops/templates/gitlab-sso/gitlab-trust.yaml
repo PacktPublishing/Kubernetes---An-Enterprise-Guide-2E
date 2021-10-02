@@ -1,0 +1,25 @@
+apiVersion: openunison.tremolo.io/v1
+kind: Trust
+metadata:
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: gitlab-sso
+    app.kubernetes.io/part-of: openunison
+  name: gitlab
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessTokenSkewMillis: 120000
+  accessTokenTimeToLive: 60000
+  authChainName: login-service
+  clientId: gitlab
+  clientSecret:
+    keyName: gitlab
+    secretName: orchestra-secrets-source
+  codeLastMileKeyName: lastmile-oidc
+  codeTokenSkewMilis: 60000
+  publicEndpoint: false
+  redirectURI:
+  - {{ .Values.openunison.non_secret_data.GITLAB_URL }}/users/auth/openid_connect/callback
+  signedUserInfo: false
+  verifyRedirect: true

@@ -93,10 +93,14 @@ openunison:
   replicas: 1
   non_secret_data:
     K8S_DB_SSO: oidc
+    GITLAB_URL: https://gitlab.apps.IPADDR.nip.io
+    tektondashboard_host: tekton.apps.IPADDR.nip.io
+    ARGOCD_URL: https://argocd.apps.IPADDR.nip.io
   secrets: []
   html:
     image: docker.io/tremolosecurity/openunison-k8s-html
   enable_provisioning: true
+  use_standard_jit_workflow: false
 
 myvd_configmap: myvd-book
 

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: naas-gitops
+description: Deploys OpenUnison workflows for a GitOps Namespace as a Service
+type: application
+version: 0.1.0
+appVersion: "1.0.24"

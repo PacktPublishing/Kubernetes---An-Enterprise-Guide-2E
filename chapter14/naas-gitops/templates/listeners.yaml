@@ -1,0 +1,9 @@
+---
+kind: MessageListener
+apiVersion: openunison.tremolo.io/v1
+metadata:
+  name: rebase-queue
+  namespace: {{ .Release.Namespace }}
+spec:
+  className: com.tremolosecurity.provisioning.listeners.UpdateApprovalAZListener
+  params: []

@@ -1,0 +1,25 @@
+apiVersion: openunison.tremolo.io/v1
+kind: Trust
+metadata:
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: tketondb-sso
+    app.kubernetes.io/part-of: openunison
+  name: tekton-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  accessTokenSkewMillis: 120000
+  accessTokenTimeToLive: 60000
+  authChainName: login-service
+  clientId: tekton-db
+  clientSecret:
+    keyName: K8S_DB_SECRET
+    secretName: orchestra-secrets-source
+  codeLastMileKeyName: lastmile-oidc
+  codeTokenSkewMilis: 60000
+  publicEndpoint: false
+  redirectURI:
+  - https://{{ .Values.openunison.non_secret_data.tektondashboard_host }}/auth/oidc
+  signedUserInfo: true
+  verifyRedirect: true

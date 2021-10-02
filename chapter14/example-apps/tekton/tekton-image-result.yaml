@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: result-image
+  namespace: python-hello-build
+spec:
+  params:
+  - name: url
+    value: docker.apps.192-168-2-114.nip.io/python-hello-build/hello-world-service
+  type: image

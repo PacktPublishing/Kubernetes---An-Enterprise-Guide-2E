@@ -1,0 +1,116 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: jit-gitlab
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: GitLab JIT
+  inList: false
+  label: GitLab JIT
+  orgId: 687da09f-8ec1-48ac-b035-f2f182b9bd1e
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.customTasks.LoadGroups
+      params:
+        nameAttr: sub
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.customTasks.PrintUserInfo
+      params:
+        message: "pre-map-gitlab"
+    
+    - taskType: mapping
+      strict: true
+      map:
+        - targetAttributeName: TREMOLO_USER_ID
+          sourceType: user
+          targetAttributeSource: sub
+        - targetAttributeName: username
+          sourceType: user
+          targetAttributeSource: sub
+        - targetAttributeName: email
+          sourceType: user
+          targetAttributeSource: mail
+        - targetAttributeName: name
+          sourceType: composite
+          targetAttributeSource: "${firstName} ${lastName}"
+      onSuccess:
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.JavaScriptTask
+        params:
+          javaScript: |-
+            // map from openunison groups to gitlab
+
+            HashMap = Java.type("java.util.HashMap");
+            GitlabUserProvider = Java.type("com.tremolosecurity.unison.gitlab.provisioning.targets.GitlabUserProvider");
+            Attribute = Java.type("com.tremolosecurity.saml.Attribute");
+
+            function init(task,params) {
+            // nothing to do
+            }
+
+            function reInit(task) {
+            // do nothing
+            }
+
+            function doTask(user,request) {
+                groupmap = new HashMap();
+                var foundAdmin = false;
+
+                for (var i=0;i<user.getGroups().size();i++) {
+                    var group = user.getGroups().get(i);
+
+                    if (group.startsWith("approvers-k8s-")) {
+                        groupmap.put(group, 40);
+                    } else if (group.startsWith("k8s-namespace-developer")) {
+                        groupmap.put(group,30);
+                    } else if (group.startsWith("k8s-namespace-operations")) {
+                        groupmap.put(group,30);
+                    } else if (group == "k8s-cluster-k8s-administrators") {
+                        foundAdmin = true;
+                    }
+
+                    
+
+                }
+
+                request.put(GitlabUserProvider.GITLAB_GROUP_ENTITLEMENTS,groupmap);
+
+                isAdmin = new Attribute("isAdmin", foundAdmin ? "true" : "false");
+                user.getAttribs().put("isAdmin",isAdmin);
+                return true;
+            }
+      - taskType: customTask
+        className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGitlabExternalIdentity
+        params:
+          provider: openid_connect
+          userAttribute: username
+
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.PrintUserInfo
+        params:
+          message: "pre-provision-gitlab"
+
+      - taskType: provision
+        sync: true
+        target: gitlab
+        setPassword: false
+        onlyPassedInAttributes: false
+        attributes:
+        - username
+        - name
+        - email
+        - isAdmin
+        - skipConfirmation
+        - projectsLimit
+        
