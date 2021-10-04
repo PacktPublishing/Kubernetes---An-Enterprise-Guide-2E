@@ -36,3 +36,24 @@ spec:
   - name: projectsLimit
     source: "100000"
     sourceType: static
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Target
+metadata:
+  name: argocd
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-targets
+    app.kubernetes.io/part-of: openunison
+spec:
+  className: com.tremolosecurity.argocd.targets.ArgoCDTarget
+  params:
+  - name: url
+    value: "{{ .Values.openunison.non_secret_data.ARGOCD_URL }}"
+  secretParams:
+  - name: token
+    secretName: orchestra-secrets-source
+    secretKey: ARGOCD_TOKEN
+  targetAttributes: []

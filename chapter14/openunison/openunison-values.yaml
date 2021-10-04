@@ -96,6 +96,9 @@ openunison:
     GITLAB_URL: https://gitlab.apps.IPADDR.nip.io
     tektondashboard_host: tekton.apps.IPADDR.nip.io
     ARGOCD_URL: https://argocd.apps.IPADDR.nip.io
+    GITLAB_SSH_HOST: gitlab-gitlab-shell.gitlab.svc.cluster.local
+    GITLAB_WRITE_SSH_HOST: gitlab-write-shell.gitlab.svc.cluster.local
+    GITLAB_WEBHOOK_SUFFIX: gitlab.IPADDR.nip.io
   secrets: []
   html:
     image: docker.io/tremolosecurity/openunison-k8s-html

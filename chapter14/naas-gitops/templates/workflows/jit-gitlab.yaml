@@ -78,6 +78,7 @@ spec:
                         groupmap.put(group,30);
                     } else if (group == "k8s-cluster-k8s-administrators") {
                         foundAdmin = true;
+                        groupmap.put(group,40);
                     }
 
                     

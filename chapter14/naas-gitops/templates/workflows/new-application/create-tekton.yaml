@@ -1,0 +1,554 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: create-tekton
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: Create tekton templates
+  inList: false
+  label: Create TektonCD templates
+  orgId: 9d251de8-e481-45da-b22c-c8c98952e581
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+   # create an build project in gitlab
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateProject
+      params:
+        namespace: $nameSpace$-production
+        name: $nameSpace$-build
+        description: Build project
+        issuesEnabled: "true"
+        mergeRequestsEnabled: "true"
+        wikiEnabled: "true"
+        snipitsEnabled: "true"
+        visibility: "2"
+        targetName: gitlab
+        gitSshHost: {{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST | quote }}
+        createWebhook: "false"
+        webhookSuffix: {{ .Values.openunison.non_secret_data.GITLAB_WEBHOOK_SUFFIX | quote }}
+        webhookBranchFilter: "main"
+    
+    # create a git file so there's something in the repo
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateGitFile
+      params:
+        targetName: gitlab
+        namespace: $nameSpace$-production
+        project: $nameSpace$-build
+        branch: main
+        path: README.md
+        content: |-
+          # $nameSpace$-build 
+
+          Fork this project to create a build process for for $nameSpace$.  Create a pull request to deploy updates.
+        commitMessage: initializing the repository
+
+    # create a git repo in argocd that is connected to our operations project in gitlab
+    - taskType: customTask
+      className: com.tremolosecurity.argocd.tasks.CreateGitRepository
+      params:
+        type: git
+        name: $nameSpace$-build
+        repoUrl: "$gitSshInternalURL$"
+        sshPrivateKey: $gitPrivateKey$
+        target: argocd
+
+    # approvers need to be able to approve pull requests
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        groupName: approvers-k8s-$nameSpace$
+        targetName: gitlab
+        accessLevel: MAINTAINER
+
+    # operations need to be able to fork for development
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        groupName: k8s-namespace-operations-$nameSpace$
+        targetName: gitlab
+        accessLevel: DEVELOPER
+
+    # developers need to be able to fork for development
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        groupName: k8s-namespace-developer-$nameSpace$
+        targetName: gitlab
+        accessLevel: DEVELOPER
+
+    
+    # create the build namespace
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Namespace
+        url: /api/v1/namespaces
+        srcType: yaml
+        template: |-
+          kind: Namespace
+          apiVersion: v1
+          metadata:
+            name: $nameSpace$-build
+            labels:
+              name: $nameSpace$-build
+              application: $nameSpace$
+              type: application
+              env: build
+
+    # Create read only secret to pull code from the application repository
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateDeploymentKey
+      params:
+        targetName: gitlab
+        namespace: $nameSpace$-production
+        project: $nameSpace$-application
+        keyLabel: tekton_pull
+        makeWriteable: "false"
+        privateKeyReuestName: tektonPullecret
+        privateKeyReuestNamePT: tektonPullSecretPT
+
+    # create git pull secret
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Secret
+        url: /api/v1/namespaces/$nameSpace$-build/secrets
+        srcType: yaml
+        template: |-
+          kind: Secret
+          apiVersion: v1
+          metadata:
+            name: git-pull
+            namespace: $nameSpace$-build
+            annotations:
+              tekton.dev/git-0: "{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}"
+          data:
+            ssh-privatekey: $tektonPullecret$
+          type: kubernetes.io/ssh-auth
+
+    # create service account for running builds
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: ServiceAccount
+        url: /api/v1/namespaces/$nameSpace$-build/serviceaccounts
+        srcType: yaml
+        template: |-
+         apiVersion: v1
+         kind: ServiceAccount
+         metadata:
+           name: tekton-build
+           namespace: $nameSpace$-build
+         secrets:
+           - name: git-pull
+
+    # create tekton git pull input
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: PipelineResource
+        url: /apis/tekton.dev/v1alpha1/namespaces/$nameSpace$-build/pipelineresources
+        srcType: yaml
+        template: |-
+          apiVersion: tekton.dev/v1alpha1
+          kind: PipelineResource
+          metadata:
+            name: git-resource
+            namespace: $nameSpace$-build
+          spec:
+            type: git
+            params:
+              - name: url
+                value: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-application.git
+              - name: revision
+                value: master
+
+    # Create writeable  secret to push code to the operations repository
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateDeploymentKey
+      params:
+        targetName: gitlab
+        namespace: $nameSpace$-dev
+        project: $nameSpace$-operations
+        keyLabel: tekton_push
+        makeWriteable: "true"
+        privateKeyReuestName: tektonPushSecret
+        privateKeyReuestNamePT: tektonPushSecretPT
+
+    # create git push secret
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Secret
+        url: /api/v1/namespaces/$nameSpace$-build/secrets
+        srcType: yaml
+        template: |-
+          kind: Secret
+          apiVersion: v1
+          metadata:
+            name: git-write
+            namespace: $nameSpace$-build
+          data:
+            ssh-privatekey: $tektonPushSecret$
+          type: kubernetes.io/ssh-auth
+
+    # Create the trigger template
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateGitFile
+      params:
+        targetName: gitlab
+        namespace: $nameSpace$-production
+        project: $nameSpace$-build
+        branch: main
+        path: src/trigger-templates/gitlab-build-template.yaml
+        commitMessage: initializing the repository
+        content: |-
+          ---
+          apiVersion: triggers.tekton.dev/v1beta1
+          kind: TriggerTemplate
+          metadata:
+            name: gitlab-build-template
+          spec:
+            resourcetemplates:
+            - apiVersion: tekton.dev/v1beta1
+              kind: PipelineRun
+              metadata:
+                generateName: build-$nameSpace$
+              spec:
+                serviceAccountName: tekton-build
+
+    # Create the trigger template
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateGitFile
+      params:
+        targetName: gitlab
+        namespace: $nameSpace$-production
+        project: $nameSpace$-build
+        branch: main
+        path: src/trigger-bindings/gitlab-push-binding.yaml
+        commitMessage: initializing the repository
+        content: |-
+          ---
+          apiVersion: triggers.tekton.dev/v1beta1
+          kind: TriggerBinding
+          metadata:
+            name: gitlab-push-binding
+          spec: {}
+
+    # create webhook secret
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Secret
+        url: /api/v1/namespaces/$nameSpace$-build/secrets
+        srcType: yaml
+        template: |-
+          kind: Secret
+          apiVersion: v1
+          metadata:
+            name: gitlab-secret
+            namespace: $nameSpace$-build
+          data:
+            secretToken: $b64appProjectWebhook$
+          type: Opaque
+    
+    # create service account for the webhook
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: ServiceAccount
+        url: /api/v1/namespaces/$nameSpace$-build/serviceaccounts
+        srcType: yaml
+        template: |-
+          apiVersion: v1
+          kind: ServiceAccount
+          metadata:
+            name: tekton-triggers-gitlab-sa
+            namespace: $nameSpace$-build
+          secrets:
+            - name: gitlab-secret
+
+
+
+    # create rolebinding for tekton
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: RoleBinding
+        url: /apis/rbac.authorization.k8s.io/v1/namespaces/$nameSpace$-build/rolebindings
+        srcType: yaml
+        template: |-
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: RoleBinding
+          metadata:
+            name: tekton-triggers-gitlab-binding
+            namespace: $nameSpace$-build
+          subjects:
+            - kind: ServiceAccount
+              name: tekton-triggers-gitlab-sa
+              namespace: $nameSpace$-build
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: tekton-triggers-gitlab-minimal
+
+    # create cluster rolebinding for admins
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: ClusterRoleBinding
+        url: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings
+        srcType: yaml
+        template: |-
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: tekton-triggers-gitlab-binding-$nameSpace$
+            namespace: $nameSpace$-build
+          subjects:
+            - kind: ServiceAccount
+              name: tekton-triggers-gitlab-sa
+              namespace: $nameSpace$-build
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: tekton-triggers-gitlab-cluster-minimal
+
+
+    # create event listener
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: EventListener
+        url: /apis/triggers.tekton.dev/v1beta1/namespaces/$nameSpace$-build/eventlisteners
+        srcType: yaml
+        template: |-
+          apiVersion: triggers.tekton.dev/v1beta1
+          kind: EventListener
+          metadata:
+            name: gitlab-listener
+            namespace: $nameSpace$-build
+          spec:
+            serviceAccountName: tekton-triggers-gitlab-sa
+            namespaceSelector:
+              matchNames:
+              - $nameSpace$-build
+            triggers:
+              - name: gitlab-push-events-trigger
+                interceptors:
+                  - name: "verify-gitlab-payload"
+                    ref:
+                      name: "gitlab"
+                    params:
+                    - name: secretRef
+                      value:
+                        secretName: gitlab-secret
+                        secretKey: secretToken
+                    - name: eventTypes
+                      value:
+                      - "Push Hook"
+                bindings:
+                  - ref: gitlab-push-binding
+                template:
+                  ref: gitlab-build-template
+
+    # create ingress object
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Ingress
+        url: /apis/networking.k8s.io/v1/namespaces/$nameSpace$-build/ingresses
+        srcType: yaml
+        template: |-
+            apiVersion: networking.k8s.io/v1
+            kind: Ingress
+            metadata:
+              name: gitlab-webhook
+              namespace: $nameSpace$-build
+            annotations:
+                cert-manager.io/cluster-issuer: ca-issuer
+            spec:
+              rules:
+                - host: $nameSpace$-application.{{ .Values.openunison.non_secret_data.GITLAB_WEBHOOK_SUFFIX }}
+                  http:
+                    paths:
+                    - path: "/"
+                      pathType: Prefix
+                      backend:
+                        service:
+                          name: el-gitlab-listener
+                          port:
+                            number: 8080
+              tls:
+                - hosts:
+                  - $nameSpace$-application.{{ .Values.openunison.non_secret_data.GITLAB_WEBHOOK_SUFFIX }}
+                  secretName: ingresssecret
+
+    # grant the operations team access to the build namespace
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: RoleBinding
+        url: /apis/rbac.authorization.k8s.io/v1/namespaces/$nameSpace$-build/rolebindings
+        srcType: yaml
+        template: |-
+          kind: RoleBinding
+          apiVersion: rbac.authorization.k8s.io/v1
+          metadata:
+            name: operations-binding
+            namespace: $nameSpace$-build
+          subjects:
+          - kind: Group
+            name: k8s-namespace-operations-$nameSpace$
+            apiGroup: rbac.authorization.k8s.io
+          - kind: Group
+            name: k8s-namespace-developer-$nameSpace$
+            apiGroup: rbac.authorization.k8s.io
+          roleRef:
+            kind: ClusterRole
+            name: admin
+            apiGroup: rbac.authorization.k8s.io
+
+    # patch the default mutators so our tekton pods do
+    # not get forced security
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spspdefaultallowprivilegeescalation
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spspdefaultallowprivilegeescalationinit
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spspfsgroup
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spsprunasnonroot
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spsprunasnonrootinit
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spsprunasgroup
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spsprunasgroupinit
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spsprunasuser
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spsprunasuserinit
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spspcapabilities
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Assign
+        url: /apis/mutations.gatekeeper.sh/v1alpha1/assign/k8spspcapabilitiesinit
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: K8sRequirePSPForNamespace
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8srequirepspfornamespace/k8srequirepspfornamespace
+        patchType: json
+        template: |-
+          [{"op":"add","path":"/spec/match/excludedNamespaces/0","value":"$nameSpace$-build"}]

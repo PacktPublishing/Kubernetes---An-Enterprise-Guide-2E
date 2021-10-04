@@ -1,0 +1,151 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: create-operations-dev
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: Create dev operations project in gitlab
+  inList: false
+  label: Create Dev Operations Application
+  orgId: 9d251de8-e481-45da-b22c-c8c98952e581
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+    
+    # fork the production git project
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.ForkProject
+      params:
+        sourceProjectName: $nameSpace$-operations
+        sourceProjectNamespace: $nameSpace$-production
+        destinationNamespace: $nameSpace$-dev
+        targetName: gitlab
+        gitSshHost: {{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST | quote }}
+
+    # create a deployment key for argocd to use
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateDeploymentKey
+      params:
+        targetName: gitlab
+        namespace: $nameSpace$-dev
+        project: $nameSpace$-operations
+        keyLabel: argocd
+        makeWriteable: "false"
+        privateKeyReuestName: argoPullSecretB64
+        privateKeyReuestNamePT: argoPullSecret
+
+
+    # create a git repo in argocd that is connected to our operations project in gitlab
+    - taskType: customTask
+      className: com.tremolosecurity.argocd.tasks.CreateGitRepository
+      params:
+        type: git
+        name: $nameSpace$-operations
+        repoUrl: "$gitSshInternalURL$"
+        sshPrivateKey: $argoPullSecret$
+        target: argocd
+
+    # approvers need to be able to approve pull requests
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        projectName: $nameSpace$-operations
+        namespace: $nameSpace$-dev
+        groupName: approvers-k8s-$nameSpace$
+        targetName: gitlab
+        accessLevel: MAINTAINER
+
+    # operations need to be able to fork for development
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        projectName: $nameSpace$-operations
+        namespace: $nameSpace$-dev
+        groupName: k8s-namespace-operations-$nameSpace$
+        targetName: gitlab
+        accessLevel: DEVELOPER
+
+    # developers need to be able to fork for development
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        projectName: $nameSpace$-operations
+        namespace: $nameSpace$-dev
+        groupName: k8s-namespace-developer-$nameSpace$
+        targetName: gitlab
+        accessLevel: DEVELOPER
+
+    
+    # create the dev namespace
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Namespace
+        url: /api/v1/namespaces
+        srcType: yaml
+        template: |-
+          kind: Namespace
+          apiVersion: v1
+          metadata:
+            name: $nameSpace$-dev
+            labels:
+              name: $nameSpace$-dev
+              application: $nameSpace$
+              type: application
+              env: dev
+
+    # create rolebinding for admins
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: RoleBinding
+        url: /apis/rbac.authorization.k8s.io/v1/namespaces/$nameSpace$-dev/rolebindings
+        srcType: yaml
+        template: |-
+          kind: RoleBinding
+          apiVersion: rbac.authorization.k8s.io/v1
+          metadata:
+            name: operations-binding
+            namespace: $nameSpace$-dev
+          subjects:
+            - kind: Group
+              name: k8s-namespace-operations-$nameSpace$
+              apiGroup: rbac.authorization.k8s.io
+          roleRef:
+            kind: ClusterRole
+            name: admin
+            apiGroup: rbac.authorization.k8s.io
+
+    # create rolebinding for developers
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: RoleBinding
+        url: /apis/rbac.authorization.k8s.io/v1/namespaces/$nameSpace$-dev/rolebindings
+        srcType: yaml
+        template: |-
+          kind: RoleBinding
+          apiVersion: rbac.authorization.k8s.io/v1
+          metadata:
+            name: developers-binding
+            namespace: $nameSpace$-dev
+          subjects:
+            - kind: Group
+              name: k8s-namespace-developer-$nameSpace$
+              apiGroup: rbac.authorization.k8s.io
+          roleRef:
+            kind: ClusterRole
+            name: view
+            apiGroup: rbac.authorization.k8s.io
+

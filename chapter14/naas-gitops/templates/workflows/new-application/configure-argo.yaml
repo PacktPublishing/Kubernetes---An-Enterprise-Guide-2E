@@ -1,0 +1,155 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: configure-argo
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: Creates argocd projects and application
+  inList: false
+  label: Create Production Operations Application
+  orgId: Creates argocd projects and application
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+    # create argocd project
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: AppProject
+        srcType: yaml
+        url: /apis/argoproj.io/v1alpha1/namespaces/argocd/appprojects
+        template: |-
+          apiVersion: argoproj.io/v1alpha1
+          kind: AppProject
+          metadata:
+            name: $nameSpace$
+            namespace: argocd
+          spec:
+            description: Project for $nameSpace$
+            destinations:
+              - namespace: $nameSpace$-prod
+                server: https://kubernetes.default.svc
+              - namespace: $nameSpace$-dev
+                server: https://kubernetes.default.svc
+              - namespace: $nameSpace$-build
+                server: https://kubernetes.default.svc
+            sourceRepos:
+              - git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-build.git
+              - git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-operations.git
+              - git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-dev/$nameSpace$-operations.git
+
+    # create applications
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Application
+        srcType: yaml
+        url: /apis/argoproj.io/v1alpha1/namespaces/argocd/applications
+        template: |-
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: $nameSpace$-build
+            namespace: argocd
+          spec:
+            destination:
+              namespace: $nameSpace$-build
+              server: https://kubernetes.default.svc
+            project: $nameSpace$
+            source:
+              directory:
+                jsonnet: {}
+                recurse: true
+              path: src
+              repoURL: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-build.git
+              targetRevision: HEAD
+            syncPolicy:
+              automated: {}
+
+    # create applications
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Application
+        srcType: yaml
+        url: /apis/argoproj.io/v1alpha1/namespaces/argocd/applications
+        template: |-
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: $nameSpace$-dev
+            namespace: argocd
+          spec:
+            destination:
+              namespace: $nameSpace$-dev
+              server: https://kubernetes.default.svc
+            project: $nameSpace$
+            source:
+              directory:
+                jsonnet: {}
+                recurse: true
+              path: src
+              repoURL: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-dev.git
+              targetRevision: HEAD
+            syncPolicy:
+              automated: {}
+
+    # create applications
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Application
+        srcType: yaml
+        url: /apis/argoproj.io/v1alpha1/namespaces/argocd/applications
+        template: |-
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: $nameSpace$-operations
+            namespace: argocd
+          spec:
+            destination:
+              namespace: $nameSpace$-operations
+              server: https://kubernetes.default.svc
+            project: $nameSpace$
+            source:
+              directory:
+                jsonnet: {}
+                recurse: true
+              path: src
+              repoURL: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-operations.git
+              targetRevision: HEAD
+            syncPolicy:
+              automated: {}
+
+    # create applications
+    - taskType: customTask
+      className: com.tremolosecurity.argocd.tasks.AddtoRBAC
+      params:
+        k8sTarget: k8s
+        toAdd: |-
+          p, role:$nameSpace$-operations, applications, get, $nameSpace$/*, allow
+          p, role:$nameSpace$-operations, applications, override, $nameSpace$/*, allow
+          p, role:$nameSpace$-operations, applications, sync, $nameSpace$/*, allow
+          p, role:$nameSpace$-operations, applications, update, $nameSpace$/*, allow
+          
+          p, role:$nameSpace$-operations, projects, get, $nameSpace$, allow
+          
+          g, k8s-namespace-operations-$nameSpace$, role:$nameSpace$-operations
+          
+          
+          p, role:$nameSpace$-dev, applications, get, $nameSpace$/*, allow
+          p, role:$nameSpace$-dev, projects, get, $nameSpace$, allow
+          g, k8s-namespace-developer-$nameSpace$, role:$nameSpace$-dev

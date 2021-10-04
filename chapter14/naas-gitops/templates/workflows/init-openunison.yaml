@@ -1,0 +1,179 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: init-openunison
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: Initialize OpenUnison
+  inList: true
+  label: Initialize OpenUnison
+  orgId: 9d251de8-e481-45da-b22c-c8c98952e581
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+    # create a "group" (namespace) in gitlab
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+      params:
+        target: gitlab
+        name: cluster-operations
+        attributes:
+        - requestAccessEnabled=false
+
+    # create group that maps to cluster admins
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+      params:
+        target: gitlab
+        name: k8s-cluster-k8s-administrators
+        attributes:
+        - requestAccessEnabled=false
+    
+    # create an operations project in gitlab
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateProject
+      params:
+        namespace: cluster-operations
+        name: cluster-operations
+        description: Cluster administration project
+        issuesEnabled: "true"
+        mergeRequestsEnabled: "true"
+        wikiEnabled: "true"
+        snipitsEnabled: "true"
+        visibility: "2"
+        targetName: gitlab
+        gitSshHost: {{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST | quote }}
+        createWebhook: "false"
+        webhookSuffix: {{ .Values.openunison.non_secret_data.GITLAB_WEBHOOK_SUFFIX | quote }}
+        webhookBranchFilter: "main"
+    
+    # create a git file so there's something in the repo
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateGitFile
+      params:
+        targetName: gitlab
+        namespace: cluster-operations
+        project: cluster-operations
+        branch: main
+        path: README.md
+        content: |-
+          # Cluster Operations
+
+          This is going to be where cluster level objects are stored
+        commitMessage: initializing the repository
+
+    # create a git repo in argocd that is connected to our operations project in gitlab
+    - taskType: customTask
+      className: com.tremolosecurity.argocd.tasks.CreateGitRepository
+      params:
+        type: git
+        name: cluster-operations
+        repoUrl: "$gitSshInternalURL$"
+        sshPrivateKey: $gitPrivateKey$
+        target: argocd
+
+    # create the admin group in gitlab
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        groupName: k8s-cluster-k8s-administrators
+        targetName: gitlab
+        accessLevel: MAINTAINER
+
+    # create an argo project to store the argocd application
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: AppProject
+        url: /apis/argoproj.io/v1alpha1/namespaces/argocd/appprojects
+        srcType: yaml
+        template: |-
+          apiVersion: argoproj.io/v1alpha1
+          kind: AppProject
+          metadata:
+            name: cluster-operations
+            namespace: argocd
+          spec:
+            description: Cluster operations project
+            destinations:
+              - server: https://kubernetes.default.svc
+                namespace: "*"
+            sourceRepos:
+              - git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:cluster-operations/cluster-operations.git
+            clusterResourceWhitelist:
+            - group: "*"
+              kind: "*"
+            namespaceResourceWhitelist:
+            - group: '*'
+              kind: '*'
+            
+
+    # create the argo application that will drive cluster level objects
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Application
+        url: /apis/argoproj.io/v1alpha1/namespaces/argocd/applications
+        srcType: yaml
+        template: |-
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: cluster-operations
+            namespace: argocd
+          spec:
+            destination:
+              server: https://kubernetes.default.svc
+            project: cluster-operations
+            source:
+              directory:
+                jsonnet: {}
+                recurse: true
+              path: src
+              repoURL: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:cluster-operations/cluster-operations.git
+              targetRevision: HEAD
+            syncPolicy:
+              automated: {}
+
+    # create private key for openunison to push manifests
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateDeploymentKey
+      params:
+        targetName: gitlab
+        namespace: cluster-operations
+        project: cluster-operations
+        keyLabel: openunison-push
+        makeWriteable: "true"
+        privateKeyReuestName: ouPushSecretB64
+        privateKeyReuestNamePT: ouPushSecret
+
+    # write the secret to k8s for later use
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: Secret
+        url: /api/v1/namespaces/openunison/secrets
+        srcType: yaml
+        template: |-
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: openunison-git-cluster-key
+            namespace: openunison
+          data:
+            id_rsa: $ouPushSecretB64$
+
+
+
+    

@@ -1,0 +1,159 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: new-application
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: New Application
+  inList: false
+  label: New Application
+  orgId: 9d251de8-e481-45da-b22c-c8c98952e581
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.customTasks.CopyFromUserToRequest
+      params:
+        attribute: nameSpace
+        keepInUser: "false"
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.customTasks.LoadAttributes
+      params:
+        nameAttr: uid
+        name:
+        - givenName
+        - sn
+        - mail
+
+    - taskType: approval
+      label: Create New Application - $nameSpace$
+      emailTemplate: |-
+        A new application has been requested
+      approvers:
+      - scope: group
+        constraint: cn=administrators,ou=groups,ou=shadow,o=Tremolo
+      mailAttr: mail
+      failureEmailSubject: Application not approved
+      failureEmailMsg: |-
+        Because:
+        ${reason}
+      onSuccess:
+      # create groups in openunison's database to manage access to the infrastructure
+      # the approvers group determines who "owns" the application
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+        params:
+          target: jitdb
+          name: approvers-k8s-$nameSpace$
+          attributes:
+          - unison.group.create.sql=INSERT INTO localGroups (name,description) VALUES (?,?)
+          - unison.group.create.param.2=Approve access to $nameSpace$
+
+      # the operations group will have admin access to the namespaces
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+        params:
+          target: jitdb
+          name: k8s-namespace-operations-$nameSpace$
+          attributes:
+          - unison.group.create.sql=INSERT INTO localGroups (name,description) VALUES (?,?)
+          - unison.group.create.param.2=Manage kubernetes namespace $nameSpace$
+     
+      # developers can fork repositories and check out code
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+        params:
+          target: jitdb
+          name: k8s-namespace-developer-$nameSpace$
+          attributes:
+          - unison.group.create.sql=INSERT INTO localGroups (name,description) VALUES (?,?)
+          - unison.group.create.param.2=For and commit code for $nameSpace$
+
+      # create groups in gitlab
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+        params:
+          target: gitlab
+          name: $nameSpace$-production
+          attributes: requestAccessEnabled=false
+
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+        params:
+          target: gitlab
+          name: $nameSpace$-dev
+          attributes: requestAccessEnabled=false
+
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+        params:
+          target: gitlab
+          name: approvers-k8s-$nameSpace$
+          attributes: requestAccessEnabled=false
+
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+        params:
+          target: gitlab
+          name: k8s-namespace-operations-$nameSpace$
+          attributes: requestAccessEnabled=false
+
+      - taskType: customTask
+        className: com.tremolosecurity.provisioning.customTasks.AddGroupToStore
+        params:
+          target: gitlab
+          name: k8s-namespace-developer-$nameSpace$
+          attributes: requestAccessEnabled=false
+      
+      - taskType: callWorkflow
+        name: new-application-production
+
+      # make the application owner an approver for access
+      # and an operations admin
+      - taskType: mapping
+        strict: true
+        map:
+        - targetAttributeName: uid
+          targetAttributeSource: uid
+          sourceType: user
+        onSuccess:
+        - taskType: addGroup
+          name: approvers-k8s-$nameSpace$
+          remove: false
+        - taskType: addGroup
+          name: k8s-namespace-operations-$nameSpace$
+          remove: false
+        - taskType: provision
+          sync: false
+          target: jitdb
+          setPassword: false
+          onlyPassedInAttributes: false
+          attributes:
+          - uid
+      
+      - taskType: callWorkflow
+        name: create-operations-production
+
+      - taskType: callWorkflow
+        name: create-operations-dev
+
+      - taskType: callWorkflow
+        name: create-tekton
+
+      - taskType: callWorkflow
+        name: configure-argo
+
+      - taskType: notifyUser
+        subject: Application created
+        mailAttrib: mail
+        msg: Your application has been created
+      

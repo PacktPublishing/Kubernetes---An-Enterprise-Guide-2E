@@ -1,0 +1,83 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: new-application-production
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: create production application infrastructure
+  inList: false
+  label: new application in production
+  orgId: 9d251de8-e481-45da-b22c-c8c98952e581
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+    # create an operations project in gitlab
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateProject
+      params:
+        namespace: $nameSpace$-production
+        name: $nameSpace$-application
+        description: Application production
+        issuesEnabled: "true"
+        mergeRequestsEnabled: "true"
+        wikiEnabled: "true"
+        snipitsEnabled: "true"
+        visibility: "2"
+        targetName: gitlab
+        gitSshHost: {{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST | quote }}
+        createWebhook: "true"
+        webhookSuffix: {{ .Values.openunison.non_secret_data.GITLAB_WEBHOOK_SUFFIX | quote }}
+        webhookBranchFilter: "main"
+        webhookSecretRequestName: appProjectWebhook
+    
+    # create a git file so there's something in the repo
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateGitFile
+      params:
+        targetName: gitlab
+        namespace: $nameSpace$-production
+        project: $nameSpace$-application
+        branch: main
+        path: README.md
+        content: |-
+          # $nameSpace$-application 
+  
+          Fork this project to create to create your application.  Create a pull request to trigger a build and deployment to development.
+        commitMessage: initializing the repository
+
+    # approvers need to be able to merge pull requests
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        groupName: approvers-k8s-$nameSpace$
+        targetName: gitlab
+        accessLevel: MAINTAINER
+
+    # operations and developer staff need to be able to fork projects
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        groupName: k8s-namespace-operations-$nameSpace$
+        targetName: gitlab
+        accessLevel: DEVELOPER
+
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.AddGroupToProject
+      params:
+        groupName: k8s-namespace-developer-$nameSpace$
+        targetName: gitlab
+        accessLevel: DEVELOPER
+
+   
+
+
+
+    

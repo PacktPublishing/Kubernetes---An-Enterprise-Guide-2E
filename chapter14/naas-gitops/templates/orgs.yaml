@@ -2,6 +2,28 @@
 apiVersion: openunison.tremolo.io/v1
 kind: Org
 metadata:
+  name: initialization
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-orgs
+    app.kubernetes.io/part-of: openunison
+spec:
+  label: "Initialization"
+  azRules:
+  - scope: filter
+    constraint: (groups=administrators)
+  description: "Initialize OpenUnison, GitLab and ArgoCD"
+  parent: B158BD40-0C1B-11E3-8FFD-0800200C9A66
+  showInPortal: false
+  showInReports: false
+  showInRequestAccess: true
+  uuid: 9d251de8-e481-45da-b22c-c8c98952e581
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Org
+metadata:
   name: approvers
   namespace: {{ .Release.Namespace }}
   labels:

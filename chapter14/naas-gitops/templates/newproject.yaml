@@ -1,0 +1,101 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Application
+metadata:
+  name: scale-newproject
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-applications
+    app.kubernetes.io/part-of: openunison
+spec:
+  azTimeoutMillis: 3000
+  isApp: true
+  urls:
+  - hosts:
+    - "#[OU_HOST]"
+    filterChain: 
+    - className: com.tremolosecurity.proxy.filters.XForward
+      params:
+        createHeaders: "false"
+    - className: com.tremolosecurity.proxy.filters.SetNoCacheHeaders
+      params: {}
+    - className: com.tremolosecurity.proxy.filters.MapUriRoot
+      params:
+        newRoot: /register
+        paramName: registerURI
+    uri: "/newproject"
+    proxyTo: http://ouhtml-{{ .Values.openunison.orchestra_login_portal_name }}.{{ .Release.Namespace }}.svc:8080${registerURI}
+    authChain: login-service
+    overrideHost: true
+    overrideReferer: true
+    azRules:
+    - scope: dn
+      constraint: "o=Tremolo"
+    results: 
+      azFail: default-login-failure
+      auFail: default-login-failure
+  - hosts:
+    - "#[OU_HOST]"
+    filterChain:
+    - className: com.tremolosecurity.scalejs.register.ws.ScaleRegister
+      params:
+        displayNameAttribute: "sub"
+        frontPage.title: "Create New Application"
+        frontPage.text: "Use this page to request the creation of a new application.  Once the application is approved you will be the first approver and administrator.  You will be notified when the application is ready."
+        uidAttributeName: uid
+        workflowName: ""
+        logoutURL: "/logout"
+        homeURL: "/"
+        preSetPassword: "false"
+        requireReason: "true"
+        requireReCaptcha: "false"
+        rcSiteKey: ""
+        rcSecret: ""
+        requireTermsAndConditions: "false"
+        termsAndCondisionsText: ""
+        useCallWorkflowClass: "true"
+        callWorkflowClassName: "com.tremolosecurity.scalejs.K8sProjectCheck"
+        submitLoggedInUser: "true"
+
+        attributeNames:
+        - nameSpace
+
+        
+        nameSpace.displayName: "Application Name"
+        nameSpace.readOnly: "false"
+        nameSpace.required: "true"
+        nameSpace.regEx: "^[a-z0-9]([-a-z0-9]*[a-z0-9])?$"
+        nameSpace.regExFailedMsg: "Invalid application name, must be a valid DNS host name"
+        nameSpace.minChars: "0"
+        nameSpace.maxChars: "63"
+        nameSpace.unique: "false"
+        nameSpace.type: "text"
+
+        callWorkflowInit:
+        - workflowName=new-application
+        - targetName=k8s
+        - projectAttributeName=nameSpace
+
+
+
+    uri: /newproject/register
+    azRules:
+    - scope: dn
+      constraint: o=Tremolo
+    authChain: login-service
+    results:
+      azFail: default-login-failure
+      auFail: default-login-failure
+  cookieConfig:
+    sessionCookieName: tremolosession
+    domain: "#[OU_HOST]"
+    secure: true
+    httpOnly: true
+    logoutURI: "/logout"
+    keyAlias: session-unison
+    timeout: {{ .Values.network.session_inactivity_timeout_seconds }}
+    scope: -1
+    cookiesEnabled: true
+    
