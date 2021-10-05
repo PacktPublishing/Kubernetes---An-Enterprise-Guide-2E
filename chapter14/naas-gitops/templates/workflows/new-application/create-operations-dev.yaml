@@ -92,6 +92,9 @@ spec:
         kind: Namespace
         url: /api/v1/namespaces
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/$nameSpace$/$nameSpace$-dev/$nameSpace$-dev.yaml
         template: |-
           kind: Namespace
           apiVersion: v1
@@ -111,6 +114,9 @@ spec:
         kind: RoleBinding
         url: /apis/rbac.authorization.k8s.io/v1/namespaces/$nameSpace$-dev/rolebindings
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/$nameSpace$/$nameSpace$-dev/rolebindings/operations-binding.yaml
         template: |-
           kind: RoleBinding
           apiVersion: rbac.authorization.k8s.io/v1
@@ -134,6 +140,9 @@ spec:
         kind: RoleBinding
         url: /apis/rbac.authorization.k8s.io/v1/namespaces/$nameSpace$-dev/rolebindings
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/$nameSpace$/$nameSpace$-dev/rolebindings/developers-binding.yaml
         template: |-
           kind: RoleBinding
           apiVersion: rbac.authorization.k8s.io/v1

@@ -36,6 +36,39 @@ spec:
         createWebhook: "false"
         webhookSuffix: {{ .Values.openunison.non_secret_data.GITLAB_WEBHOOK_SUFFIX | quote }}
         webhookBranchFilter: "main"
+
+    # create a key for pushing files to tekton repo
+    - taskType: customTask
+      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateDeploymentKey
+      params:
+        targetName: gitlab
+        namespace: $nameSpace$-production
+        project: $nameSpace$-build
+        keyLabel: openunison-push
+        makeWriteable: "true"
+        privateKeyReuestName: openunisonTektonProjectKeyB64
+        privateKeyReuestNamePT: openunisonTektonProjectKey
+
+    # save the key
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        template: |-
+          kind: Secret
+          apiVersion: v1
+          metadata:
+            name: sshkey-tekton-$nameSpace$
+            labels:
+              tremolo.io/tekton: $nameSpace$
+          data:
+            id_rsa: $openunisonTektonProjectKeyB64$
+          type: Opaque
+        kind: Secret
+        url: /api/v1/namespaces/openunison/secrets
+        srcType: yaml
+        writeToRequest: "false"
+        
     
     # create a git file so there's something in the repo
     - taskType: customTask
@@ -95,6 +128,9 @@ spec:
         kind: Namespace
         url: /api/v1/namespaces
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/$nameSpace$/$nameSpace$-build/$nameSpace$-build.yaml
         template: |-
           kind: Namespace
           apiVersion: v1
@@ -126,6 +162,9 @@ spec:
         kind: Secret
         url: /api/v1/namespaces/$nameSpace$-build/secrets
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-secerts-$nameSpace$
+        path: /api/v1/namespaces/$nameSpace$-build/secrets/git-pull
         template: |-
           kind: Secret
           apiVersion: v1
@@ -146,6 +185,9 @@ spec:
         kind: ServiceAccount
         url: /api/v1/namespaces/$nameSpace$-build/serviceaccounts
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/$nameSpace$/$nameSpace$-build/serviceAccounts/tekton-build.yaml
         template: |-
          apiVersion: v1
          kind: ServiceAccount
@@ -163,6 +205,9 @@ spec:
         kind: PipelineResource
         url: /apis/tekton.dev/v1alpha1/namespaces/$nameSpace$-build/pipelineresources
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-tekton-$nameSpace$
+        path: /src/pipelineresources/git-resource.yaml
         template: |-
           apiVersion: tekton.dev/v1alpha1
           kind: PipelineResource
@@ -197,6 +242,9 @@ spec:
         kind: Secret
         url: /api/v1/namespaces/$nameSpace$-build/secrets
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-secerts-$nameSpace$
+        path: /api/v1/namespaces/$nameSpace$-build/secrets/git-write
         template: |-
           kind: Secret
           apiVersion: v1
@@ -209,45 +257,62 @@ spec:
 
     # Create the trigger template
     - taskType: customTask
-      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateGitFile
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
       params:
-        targetName: gitlab
-        namespace: $nameSpace$-production
-        project: $nameSpace$-build
-        branch: main
-        path: src/trigger-templates/gitlab-build-template.yaml
-        commitMessage: initializing the repository
-        content: |-
-          ---
-          apiVersion: triggers.tekton.dev/v1beta1
+        targetName: k8s
+        kind: TriggerTemplate
+        url: /apis/triggers.tekton.dev/v1beta1/namespaces/$nameSpace$-build/triggertemplates
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-tekton-$nameSpace$
+        path: /src/triggertemplates/gitlab-build-template.yaml
+        template: |-
           kind: TriggerTemplate
+          apiVersion: triggers.tekton.dev/v1beta1
           metadata:
             name: gitlab-build-template
+            namespace: $nameSpace$-build
           spec:
             resourcetemplates:
             - apiVersion: tekton.dev/v1beta1
               kind: PipelineRun
               metadata:
-                generateName: build-$nameSpace$
+                generateName: example-pipeline-run
               spec:
                 serviceAccountName: tekton-build
+                pipelineRef:
+                  name: example-pipeline
+                resources:
+                  - name: git-source-resource
+                    resourceRef:
+                      name: git-source-resource
+                  - name: result-image
+                    resourceRef:
+                      name: result-image
+                params:
+                - name: gitPushUrl
+                  value: git@gitlab-write-shell.gitlab.svc.cluster.local:root/$nameSpace$-operations.git
+                workspaces:
+                - name: output
+                  emptyDir: {}
 
-    # Create the trigger template
+    # Create the trigger binding
     - taskType: customTask
-      className: com.tremolosecurity.unison.gitlab.provisioning.tasks.CreateGitFile
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
       params:
-        targetName: gitlab
-        namespace: $nameSpace$-production
-        project: $nameSpace$-build
-        branch: main
-        path: src/trigger-bindings/gitlab-push-binding.yaml
-        commitMessage: initializing the repository
-        content: |-
-          ---
+        targetName: k8s
+        kind: TriggerBinding
+        url: /apis/triggers.tekton.dev/v1beta1/namespaces/$nameSpace$-build/triggerbindings
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-tekton-$nameSpace$
+        path: /src/triggerbindings/gitlab-push-binding.yaml
+        template: |-
           apiVersion: triggers.tekton.dev/v1beta1
           kind: TriggerBinding
           metadata:
             name: gitlab-push-binding
+            namespace: $nameSpace$-build
           spec: {}
 
     # create webhook secret
@@ -258,6 +323,9 @@ spec:
         kind: Secret
         url: /api/v1/namespaces/$nameSpace$-build/secrets
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-secerts-$nameSpace$
+        path: /api/v1/namespaces/$nameSpace$-build/secrets/gitlab-secret
         template: |-
           kind: Secret
           apiVersion: v1
@@ -276,6 +344,9 @@ spec:
         kind: ServiceAccount
         url: /api/v1/namespaces/$nameSpace$-build/serviceaccounts
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/$nameSpace$/$nameSpace$-build/serviceAccounts/tekton-triggers-gitlab-sa.yaml
         template: |-
           apiVersion: v1
           kind: ServiceAccount
@@ -295,6 +366,9 @@ spec:
         kind: RoleBinding
         url: /apis/rbac.authorization.k8s.io/v1/namespaces/$nameSpace$-build/rolebindings
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/$nameSpace$/$nameSpace$-build/rolebindings/tekton-triggers-gitlab-binding.yaml
         template: |-
           apiVersion: rbac.authorization.k8s.io/v1
           kind: RoleBinding
@@ -318,12 +392,14 @@ spec:
         kind: ClusterRoleBinding
         url: /apis/rbac.authorization.k8s.io/v1/clusterrolebindings
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/clusterrolebindings/tekton-triggers-gitlab-binding-$nameSpace$.yaml
         template: |-
           apiVersion: rbac.authorization.k8s.io/v1
           kind: ClusterRoleBinding
           metadata:
             name: tekton-triggers-gitlab-binding-$nameSpace$
-            namespace: $nameSpace$-build
           subjects:
             - kind: ServiceAccount
               name: tekton-triggers-gitlab-sa
@@ -342,6 +418,9 @@ spec:
         kind: EventListener
         url: /apis/triggers.tekton.dev/v1beta1/namespaces/$nameSpace$-build/eventlisteners
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-tekton-$nameSpace$
+        path: /src/eventlisteners/gitlab-listener.yaml
         template: |-
           apiVersion: triggers.tekton.dev/v1beta1
           kind: EventListener
@@ -380,13 +459,16 @@ spec:
         kind: Ingress
         url: /apis/networking.k8s.io/v1/namespaces/$nameSpace$-build/ingresses
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-tekton-$nameSpace$
+        path: /src/ingresses/gitlab-webhook.yaml
         template: |-
             apiVersion: networking.k8s.io/v1
             kind: Ingress
             metadata:
               name: gitlab-webhook
               namespace: $nameSpace$-build
-            annotations:
+              annotations:
                 cert-manager.io/cluster-issuer: ca-issuer
             spec:
               rules:
@@ -413,6 +495,9 @@ spec:
         kind: RoleBinding
         url: /apis/rbac.authorization.k8s.io/v1/namespaces/$nameSpace$-build/rolebindings
         srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/$nameSpace$/$nameSpace$-build/rolebindings/operations-binding.yaml
         template: |-
           kind: RoleBinding
           apiVersion: rbac.authorization.k8s.io/v1

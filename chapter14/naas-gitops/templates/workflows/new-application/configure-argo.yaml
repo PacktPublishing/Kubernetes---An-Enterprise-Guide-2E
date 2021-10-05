@@ -27,6 +27,9 @@ spec:
         kind: AppProject
         srcType: yaml
         url: /apis/argoproj.io/v1alpha1/namespaces/argocd/appprojects
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/argocd/appprojects/$nameSpace$.yaml
         template: |-
           apiVersion: argoproj.io/v1alpha1
           kind: AppProject
@@ -55,6 +58,9 @@ spec:
         kind: Application
         srcType: yaml
         url: /apis/argoproj.io/v1alpha1/namespaces/argocd/applications
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/argocd/applications/$nameSpace$-build.yaml
         template: |-
           apiVersion: argoproj.io/v1alpha1
           kind: Application
@@ -84,6 +90,9 @@ spec:
         kind: Application
         srcType: yaml
         url: /apis/argoproj.io/v1alpha1/namespaces/argocd/applications
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/argocd/applications/$nameSpace$-dev.yaml
         template: |-
           apiVersion: argoproj.io/v1alpha1
           kind: Application
@@ -113,6 +122,9 @@ spec:
         kind: Application
         srcType: yaml
         url: /apis/argoproj.io/v1alpha1/namespaces/argocd/applications
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/namespaces/argocd/applications/$nameSpace$-operations.yaml
         template: |-
           apiVersion: argoproj.io/v1alpha1
           kind: Application

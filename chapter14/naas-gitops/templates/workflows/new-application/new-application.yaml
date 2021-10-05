@@ -47,6 +47,7 @@ spec:
         Because:
         ${reason}
       onSuccess:
+
       # create groups in openunison's database to manage access to the infrastructure
       # the approvers group determines who "owns" the application
       - taskType: customTask
@@ -151,6 +152,10 @@ spec:
 
       - taskType: callWorkflow
         name: configure-argo
+
+      # finish gitops
+      - taskType: callWorkflow
+        name: finish-gitops
 
       - taskType: notifyUser
         subject: Application created

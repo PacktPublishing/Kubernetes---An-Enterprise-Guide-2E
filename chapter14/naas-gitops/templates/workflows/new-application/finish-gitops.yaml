@@ -1,0 +1,65 @@
+---
+apiVersion: openunison.tremolo.io/v1
+kind: Workflow
+metadata:
+  name: finish-gitops
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: openunison
+    app.kubernetes.io/instance: openunison-{{ .Release.Name }}
+    app.kubernetes.io/component: openunison-workflows
+    app.kubernetes.io/part-of: openunison
+spec:
+  description: finish gitops for new applications
+  inList: false
+  label: finish gitops for new applications
+  orgId: 9d251de8-e481-45da-b22c-c8c98952e581
+  dynamicConfiguration:
+    dynamic: false
+    className: ""
+    params: []
+  tasks: |-
+    # push to cluster repo
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PushToGit
+      params:
+        secretName: openunison-git-cluster-key
+        nameSpace: openunison
+        target: k8s
+        keyName: id_rsa
+        gitRepo: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:cluster-operations/cluster-operations.git
+        requestObject: state-application-$nameSpace$
+        commitMsg: For workflow $WORKFLOW.id$
+
+    # push to tekton repo
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PushToGit
+      params:
+        secretName: sshkey-tekton-$nameSpace$
+        nameSpace: openunison
+        target: k8s
+        keyName: id_rsa
+        gitRepo: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-build.git
+        requestObject: state-tekton-$nameSpace$
+        commitMsg: For workflow $WORKFLOW.id$
+
+    # wait for namespaces to get synced
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.WaitForObjectCreation
+      params:
+        targetName: k8s
+        timeOutMillis: "30000"
+        uris:
+        - /api/v1/namespaces/$nameSpace$-dev
+        - /api/v1/namespaces/$nameSpace$-prod
+        - /api/v1/namespaces/$nameSpace$-build
+
+    # write all secrets
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PushToApiServer
+      params:
+        target: k8s
+        requestObject: state-application-secerts-$nameSpace$
+        
+
+    
