@@ -161,4 +161,241 @@ spec:
             kind: ClusterRole
             name: view
             apiGroup: rbac.authorization.k8s.io
+    
+    # create gatekeeper policies
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPAllowPrivilegeEscalationContainer
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spspallowprivilegeescalationcontainer
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-privilege-escalation-deny-all.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPAllowPrivilegeEscalationContainer
+          metadata:
+            name: $nameSpace$-prod-privilege-escalation-deny-all
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
 
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPCapabilities
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spspcapabilities
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-capabilities-drop-all.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPCapabilities
+          metadata:
+            name: $nameSpace$-prod-capabilities-drop-all
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
+            parameters:
+              requiredDropCapabilities: ["all"]
+              allowedCapabilities: []
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPForbiddenSysctls
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spspforbiddensysctls
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-psp-forbid-all-sysctls.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPForbiddenSysctls
+          metadata:
+            name: $nameSpace$-prod-psp-forbid-all-sysctls
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
+            parameters:
+              forbiddenSysctls:
+              - "*"
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPHostFilesystem
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spsphostfilesystem
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-psp-deny-host-filesystem.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPHostFilesystem
+          metadata:
+            name: $nameSpace$-prod-psp-deny-host-filesystem
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
+            parameters:
+              allowedHostPaths: []
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPHostNamespace
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spsphostnamespace
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-psp-bloack-all-host-namespace.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPHostNamespace
+          metadata:
+            name: $nameSpace$-prod-psp-bloack-all-host-namespace
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPHostNetworkingPorts
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spsphostnetworkingports
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-psp-deny-all-host-network-ports.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPHostNetworkingPorts
+          metadata:
+            name: $nameSpace$-prod-psp-deny-all-host-network-ports
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
+            parameters:
+              hostNetwork: false
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPPrivilegedContainer
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spspprivilegedcontainer
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-psp-deny-all-privileged-container.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPPrivilegedContainer
+          metadata:
+            name: $nameSpace$-prod-psp-deny-all-privileged-container
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPProcMount
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spspprocmount
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-psp-proc-mount-default.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPProcMount
+          metadata:
+            name: $nameSpace$-prod-psp-proc-mount-default
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
+            parameters:
+              procMount: Default
+
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.CreateK8sObject
+      params:
+        targetName: k8s
+        kind: K8sPSPAllowedUsers
+        url: /apis/constraints.gatekeeper.sh/v1beta1/k8spspallowedusers
+        srcType: yaml
+        writeToRequest: "true"
+        requestAttribute: state-application-$nameSpace$
+        path: /src/cluster/gatekeeper/$nameSpace$/$nameSpace$-prod/$nameSpace$-prod-psp-pods-allowed-user-ranges.yaml
+        template: |-
+          apiVersion: constraints.gatekeeper.sh/v1beta1
+          kind: K8sPSPAllowedUsers
+          metadata:
+            name: $nameSpace$-prod-psp-pods-allowed-user-ranges
+          spec:
+            match:
+              kinds:
+                - apiGroups: [""]
+                  kinds: ["Pod"]
+              namespaces: ["$nameSpace$-prod"]
+            parameters:
+              runAsUser:
+                rule: MustRunAs # MustRunAsNonRoot # RunAsAny 
+                ranges:
+                  - min: 100
+                    max: 4294967294
+              runAsGroup:
+                rule: MustRunAs # MayRunAs # RunAsAny 
+                ranges:
+                  - min: 100
+                    max: 4294967294
+              supplementalGroups:
+                rule: MustRunAs # MayRunAs # RunAsAny 
+                ranges:
+                  - min: 100
+                    max: 4294967294
+              fsGroup:
+                rule: MustRunAs # MayRunAs # RunAsAny 
+                ranges:
+                  - min: 100
+                    max: 4294967294
+
+    
+            
+  
+
+    
