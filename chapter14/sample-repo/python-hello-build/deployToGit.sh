@@ -1,7 +1,6 @@
 #!/bin/bash
 
 export hostip=$(hostname  -I | cut -f1 -d' ' | sed 's/[.]/-/g')
-export hostip="192-168-2-119"
 
 export destdir=$1
 

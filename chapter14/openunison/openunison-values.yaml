@@ -99,6 +99,8 @@ openunison:
     GITLAB_SSH_HOST: gitlab-gitlab-shell.gitlab.svc.cluster.local
     GITLAB_WRITE_SSH_HOST: gitlab-write-shell.gitlab.svc.cluster.local
     GITLAB_WEBHOOK_SUFFIX: gitlab.IPADDR.nip.io
+    GIT_USERNAME: "openunison"
+    GIT_EMAIL: "openunison@nodomain.com"
   secrets: []
   html:
     image: docker.io/tremolosecurity/openunison-k8s-html
