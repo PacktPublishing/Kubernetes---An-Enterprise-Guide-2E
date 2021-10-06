@@ -73,11 +73,11 @@ metadata:
   name: control-plane-namespace-admins
   namespace: {{ .Release.Namespace }}
 spec:
-  label: Administrators
+  label: Operations
   azRules:
   - constraint: o=Tremolo
     scope: dn
-  description: Namespace Administrators
+  description: Application Operations
   parent: org-cluster-control-plane
   showInPortal: false
   showInReports: false
@@ -90,11 +90,11 @@ metadata:
   name: control-plane-namespace-viewers
   namespace: {{ .Release.Namespace }}
 spec:
-  label: Viewers
+  label: Developers
   azRules:
   - constraint: o=Tremolo
     scope: dn
-  description: Namespace Viewer
+  description: Application Developers
   parent: org-cluster-control-plane
   showInPortal: false
   showInReports: false
@@ -117,33 +117,17 @@ spec:
   showInReports: false
   showInRequestAccess: true
   uuid: org-cluster-control-plane-approvers
----
-apiVersion: openunison.tremolo.io/v1
-kind: Org
-metadata:
-  name: control-plan-delete
-  namespace: {{ .Release.Namespace }}
-spec:
-  label: Delete Namespace
-  azRules:
-  - constraint: o=Tremolo
-    scope: dn
-  description: Namespaces you are authorized to request deletion for
-  parent: org-cluster-control-plane
-  showInPortal: false
-  showInReports: false
-  showInRequestAccess: true
-  uuid: org-cluster-control-plane-delete
+
 ---
 apiVersion: openunison.tremolo.io/v1
 kind: Workflow
 metadata:
-  name: control-plane-namespace-admins
+  name: control-plane-app-operations
   namespace: {{ .Release.Namespace }}
 spec:
-  description: ClusterRole admin for the $name$ namespace
+  description: Operations for $application$
   inList: true
-  label: $name$ Administrator
+  label: $application$ Operations
   orgId: org-cluster-control-plane-admins
   dynamicConfiguration:
     dynamic: true
@@ -152,7 +136,7 @@ spec:
     - name: target
       value: k8s
     - name: kind
-      value: /api/v1/namespaces
+      value: /api/v1/namespaces?labelSelector=type%3Dapplication,env%3Dprod
     - name: filter
       value: default
     - name: filter
@@ -174,9 +158,9 @@ metadata:
   name: controlplane-cluster-viewer
   namespace: {{ .Release.Namespace }}
 spec:
-  description: ClusterRole view for the $name$ namespace
+  description: Developer for $name$
   inList: true
-  label: $name$ Viewer
+  label: $name$ Developer
   orgId: org-cluster-control-plane-viewers
   dynamicConfiguration:
     dynamic: true
@@ -185,7 +169,7 @@ spec:
     - name: target
       value: k8s
     - name: kind
-      value: /api/v1/namespaces
+      value: /api/v1/namespaces?labelSelector=type%3Dapplication,env%3Dprod
     - name: filter
       value: default
     - name: filter
@@ -226,34 +210,3 @@ spec:
   tasks: |-
            - taskType: callWorkflow
              name: k8s-add-approver
----
-apiVersion: openunison.tremolo.io/v1
-kind: Workflow
-metadata:
-  name: controlplane-delete-namespace
-  namespace: {{ .Release.Namespace }}
-spec:
-  description: Request namespace deletion
-  inList: true
-  label: $namespaceName$
-  orgId: org-cluster-control-plane-delete
-  dynamicConfiguration:
-    dynamic: true
-    className: com.tremolosecurity.scalejs.ListClusterApproverGroups
-    params:
-    - name: cluster
-      value: k8s
-    - name: groupsAttribute
-      value: groups
-    - name: groupsAreDN
-      value: "false"
-    - name: groupPrefix
-      value: approvers-k8s-
-  tasks: |-
-           - taskType: addAttribute
-             name: cluster
-             value: k8s
-             remove: false
-             addToRequest: true
-           - taskType: callWorkflow
-             name: k8s-delete-workflow

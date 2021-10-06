@@ -79,6 +79,17 @@ data:
     telephoneNumber: 123-456-7890
     userPassword: start123
 
+    dn: cn=app-dev,ou=Users,DC=domain,DC=com
+    objectClass: user
+    cn: app-dev
+    givenName: App
+    sn: Dev
+    samAccountName: app-dev
+    mail: app-dev@tremolo.dev
+    title: Application Developer
+    telephoneNumber: 123-456-7890
+    userPassword: start123
+
    
 
     dn: cn=k8s-cluster-admins,ou=Groups,DC=domain,DC=com
