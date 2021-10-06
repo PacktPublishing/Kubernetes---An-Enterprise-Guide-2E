@@ -51,9 +51,21 @@ spec:
         visibility: "2"
         targetName: gitlab
         gitSshHost: {{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST | quote }}
-        createWebhook: "false"
-        webhookSuffix: {{ .Values.openunison.non_secret_data.GITLAB_WEBHOOK_SUFFIX | quote }}
+        createWebhook: "true"
+        webhookSuffix: {{ .Values.openunison.non_secret_data.ARGOCD_URL }}/api/webhook
         webhookBranchFilter: "main"
+        webhookSecretRequestName: clusterreposecret
+
+    # set secret in argo
+    - taskType: customTask
+      className: com.tremolosecurity.provisioning.tasks.PatchK8sObject
+      params:
+        targetName: k8s
+        kind: Secret
+        url: /api/v1/namespaces/argocd/secrets/argocd-secret
+        patchType: strategic
+        template: |-
+          {"data":{"webhook.gitlab.secret":"$b64clusterreposecret$"}}
     
     # create a git file so there's something in the repo
     - taskType: customTask
