@@ -109,7 +109,7 @@ spec:
                 jsonnet: {}
                 recurse: true
               path: src
-              repoURL: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-dev.git
+              repoURL: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-dev/$nameSpace$-operations.git
               targetRevision: HEAD
             syncPolicy:
               automated: {}
@@ -129,11 +129,11 @@ spec:
           apiVersion: argoproj.io/v1alpha1
           kind: Application
           metadata:
-            name: $nameSpace$-operations
+            name: $nameSpace$-prod
             namespace: argocd
           spec:
             destination:
-              namespace: $nameSpace$-operations
+              namespace: $nameSpace$-prod
               server: https://kubernetes.default.svc
             project: $nameSpace$
             source:

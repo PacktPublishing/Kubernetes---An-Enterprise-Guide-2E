@@ -1,0 +1,59 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: patch-deployment
+spec:
+  volumes:
+  - name: push-secret
+    secret:
+      secretName: git-write
+  workspaces:
+    - name: output
+      description: The git repo will be cloned onto the volume backing this workspace
+  params:
+  - default: $(tasks.generate-image-tag.results.image-url)
+    description: image url
+    name: imageURL
+    type: string
+  - default: none
+    description: git url
+    type: string
+    name: gitURL
+  - default: unknown hash
+    description: hash for commit associated with build
+    type: string
+    name: sourceGitHash
+  steps:
+  - image: docker.apps.192-168-2-140.nip.io/gitcommit/gitcommit
+    name: patch-and-push
+    resources: {}
+    volumeMounts:
+    - name: push-secret
+      mountPath: /pushsecret
+    script: |-
+      #!/bin/bash
+
+      ls -lh /pushsecret
+
+      export GIT_URL="$(params.gitURL)"
+      export GIT_HOST=$(sed 's/.*[@]\(.*\)[:].*/\1/' <<< "$GIT_URL")
+      
+      mkdir /usr/local/gituser/.ssh
+      cp /pushsecret/ssh-privatekey /usr/local/gituser/.ssh/id_rsa
+      chmod go-rwx /usr/local/gituser/.ssh/id_rsa
+      ssh-keyscan -H $GIT_HOST > /usr/local/gituser/.ssh/known_hosts
+
+      #ln -s /tekton/home/.ssh /usr/local/gituser/.ssh
+      
+      ls -lh /usr/local/gituser/.ssh
+      cd $(workspaces.output.path)
+      pwd
+      git clone $(params.gitURL) .
+      git config user.email "tekton@nodomain.io"
+      git config user.name "tekton"
+
+      kubectl patch --local -f src/deployments/hello-python.yaml -p '{"spec":{"template":{"spec":{"containers":[{"name":"python-hello","image":"$(params.imageURL)"}]}}}}' -o yaml > /tmp/hello-python.yaml
+      cp /tmp/hello-python.yaml src/deployments/hello-python.yaml
+      git add src/deployments/hello-python.yaml
+      git commit -m 'commit $(params.sourceGitHash)'
+      git push
