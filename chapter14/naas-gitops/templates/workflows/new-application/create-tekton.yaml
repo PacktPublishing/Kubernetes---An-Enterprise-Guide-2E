@@ -220,7 +220,7 @@ spec:
               - name: url
                 value: git@{{ .Values.openunison.non_secret_data.GITLAB_SSH_HOST }}:$nameSpace$-production/$nameSpace$-application.git
               - name: revision
-                value: master
+                value: main
 
     # Create writeable  secret to push code to the operations repository
     - taskType: customTask
@@ -283,15 +283,15 @@ spec:
                 pipelineRef:
                   name: example-pipeline
                 resources:
-                  - name: git-source-resource
+                  - name: git-resource
                     resourceRef:
-                      name: git-source-resource
+                      name: git-resource
                   - name: result-image
                     resourceRef:
                       name: result-image
                 params:
                 - name: gitPushUrl
-                  value: git@gitlab-write-shell.gitlab.svc.cluster.local:root/$nameSpace$-operations.git
+                  value: git@gitlab-write-shell.gitlab.svc.cluster.local:$nameSpace$-dev/$nameSpace$-operations.git
                 workspaces:
                 - name: output
                   emptyDir: {}

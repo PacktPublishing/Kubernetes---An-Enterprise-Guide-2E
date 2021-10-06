@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: result-image
+spec:
+  params:
+  - name: url
+    value: docker.apps.IPADDR.nip.io/APPNAME/hello-world-service
+  type: image
