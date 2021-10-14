@@ -12,7 +12,7 @@ sed "s/IPADDR/$hostip/g" < src/deployments/hello-python.yaml | sed "s/APPNAME/$a
 
 cp README.md $destdir/
 
-currdir=$(PWD)
+currdir=$(pwd)
 
 cd $destdir
 git add *
