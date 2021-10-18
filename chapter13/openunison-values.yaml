@@ -92,7 +92,7 @@ openunison:
     K8S_DB_SSO: oidc
   secrets: []
   html:
-    image: docker.lab.tremolo.dev/nginx
+    image: docker.io/tremolosecurity/openunison-k8s-html
   enable_provisioning: false
 
 myvd_configmap: myvd-book
