@@ -95,6 +95,22 @@ echo "Deploying the login portal"
 
 helm install orchestra-login-portal $REPO_NAME/orchestra-login-portal --namespace openunison -f /tmp/openunison-values.yaml
 
+
+kubectl create -f - <<EOF
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+   name: ou-cluster-admins
+subjects:
+- kind: Group
+  name: cn=k8s-cluster-admins,ou=Groups,DC=domain,DC=com
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+EOF
+
 echo "OpenUnison is deployed!"
 
 

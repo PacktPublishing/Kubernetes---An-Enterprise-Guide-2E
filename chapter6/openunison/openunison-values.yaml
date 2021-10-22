@@ -94,6 +94,6 @@ openunison:
   html:
     image: docker.io/tremolosecurity/openunison-k8s-html
   enable_provisioning: false
-  use_standard_jit_workflow: false
+  use_standard_jit_workflow: true
 
 myvd_configmap: myvd-book
