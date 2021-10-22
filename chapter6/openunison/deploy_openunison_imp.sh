@@ -76,9 +76,8 @@ echo "Generating helm chart values to /tmp/openunison-values.yaml"
 
 export hostip=$(hostname  -I | cut -f1 -d' ' | sed 's/[.]/-/g')
 
-export unisonca=$(kubectl get secret ca-key-pair -n cert-manager -o json | jq -r '.data["tls.crt"]')
 
-sed "s/IPADDR/$hostip/g" < ./openunison-values.yaml | sed "s/UNISONCA/$unisonca/" > /tmp/openunison-values.yaml
+sed "s/IPADDR/$hostip/g" < ./openunison-values.yaml  > /tmp/openunison-values.yaml
 
 echo "Deploying Orchestra"
 
