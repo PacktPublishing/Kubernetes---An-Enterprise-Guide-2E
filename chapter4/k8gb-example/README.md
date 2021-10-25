@@ -1,5 +1,8 @@
-# K8GB Installation Scripts   
+# K8GB Installation Scripts - WIP  
+This is a WIP (Work in Progress) - When the scripts are complete, we will remove the WIP status.  
 This directory contains scripts to create the two clusters used in Chapter 4's K8GB example.    
+  
+Once complete, the scripts in this repo will move to the K8GB main GIT repo as an example use-case, the main GIT for for the K8GB project is located at https://github.com/k8gb-io/k8gb  
   
 ## Requirements for Cluster Creation  
   
