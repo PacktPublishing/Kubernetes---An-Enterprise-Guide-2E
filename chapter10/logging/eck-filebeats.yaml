@@ -1,7 +1,8 @@
 apiVersion: beat.k8s.elastic.co/v1beta1
 kind: Beat
 metadata:
-        name: filebeat
+  name: filebeat
+  namespace: logging
 spec:
   type: filebeat
   version: 7.14.0
@@ -99,6 +100,7 @@ apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
   name: elasticsearch
+  namespace: logging
 spec:
   version: 7.14.0
   nodeSets:
@@ -111,6 +113,7 @@ apiVersion: kibana.k8s.elastic.co/v1
 kind: Kibana
 metadata:
   name: kibana
+  namespace: logging
 spec:
   version: 7.14.0
   count: 1
