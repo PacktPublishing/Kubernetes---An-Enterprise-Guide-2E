@@ -54,7 +54,7 @@ envsubst < kibana-ingress.yaml | kubectl create -f - --namespace logging
 
 tput setaf 5
 echo -e "\n*******************************************************************************************************************"
-echo -e "Waiting for the Elastic Seach pod to become healthy, this can take a 3-4 minutes"
+echo -e "Waiting for the Elastic Seach pod to become healthy, this can take a 4-7 minutes"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
 while [ "$(kubectl get pods -l=statefulset.kubernetes.io/pod-name='elasticsearch-es-logging-0' -n logging -o jsonpath='{.items[*].status.containerStatuses[0].ready}')" != "true" ];
