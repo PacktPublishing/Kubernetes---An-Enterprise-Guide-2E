@@ -20,6 +20,8 @@ nodes:
     containerPath: /dev
   - hostPath: /var/run/docker.sock
     containerPath: /var/run/docker.sock
+  - hostPath: /usr/src
+    containerPath: /usr/src
 - role: worker
   extraPortMappings:
   - containerPort: 80
@@ -33,3 +35,5 @@ nodes:
     containerPath: /dev
   - hostPath: /var/run/docker.sock
     containerPath: /var/run/docker.sock
+  - hostPath: /usr/src
+    containerPath: /usr/src
