@@ -13,6 +13,7 @@ echo -e "\n \n******************************************************************
 echo -e "Creating Ingress rule for the Sidekick-UI"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
+sleep 2
 export hostip=$(hostname  -I | cut -f1 -d' ')
 envsubst < falco-ui-ingress.yaml | kubectl create -f - --namespace falco
 

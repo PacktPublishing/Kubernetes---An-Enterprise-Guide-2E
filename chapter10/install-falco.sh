@@ -8,7 +8,14 @@ echo -e "***********************************************************************
 
 tput setaf 6
 echo -e "\n \n*******************************************************************************************************************"
-echo -e "Creting Falco namespace"
+echo -e "Adding Linux Headers - If you are not using Ubuntu, you will need to add the headers to your deployment manually"
+echo -e "*******************************************************************************************************************"
+tput setaf 2
+sudo apt-get -y install linux-headers-$(uname -r)
+
+tput setaf 6
+echo -e "\n \n*******************************************************************************************************************"
+echo -e "Creating Falco namespace"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
 kubectl create ns falco
