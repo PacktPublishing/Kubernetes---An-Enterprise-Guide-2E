@@ -3,7 +3,7 @@
 clear
 tput setaf 5
 echo -e "\n*******************************************************************************************************************"
-echo -e "Downloading Velero"
+echo -e "Downloading the Velero Binary"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
 wget https://github.com/vmware-tanzu/velero/releases/download/v1.6.3/velero-v1.6.3-linux-amd64.tar.gz
@@ -31,7 +31,7 @@ rm -rf velero-v1.6.3-linux-amd64
 
 tput setaf 3
 echo -e "\n*******************************************************************************************************************"
-echo -e "Velero install complete, you should see the version below"
+echo -e "Velero binary install complete, you should see the version below"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
 velero version
