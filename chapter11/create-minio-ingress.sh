@@ -15,7 +15,7 @@ export hostip=$(hostname  -I | cut -f1 -d' ')
 envsubst < minio-ingress.yaml | kubectl apply -f - --namespace velero
 
 tput setaf 5
-echo -e "\n\nThe Minio dashboard ingress rule has been ceated, you can open the UI using http://minio.$hostip.nip.io/"
+echo -e "\n\nThe Minio dashboard ingress rule has been ceated, you can open the UI using http://minio-console.$hostip.nip.io/"
 
 echo -e "\n\n"
 tput setaf 9
