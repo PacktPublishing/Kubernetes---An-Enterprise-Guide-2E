@@ -20,7 +20,7 @@ mkdir ~/HAProxy
 
 tput setaf 5
 echo -e "\n*******************************************************************************************************************"
-echo -e "Creating the HAProxy configuration in the current users home folder"
+echo -e "Creating the HAProxy configuration in the current users home folder in the HAProxy directory"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
 
