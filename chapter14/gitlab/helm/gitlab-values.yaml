@@ -738,7 +738,7 @@ gitlab:
     minReplicas: 1
     maxReplicas: 1
   ## doc/charts/gitlab/task-runner
-  task-runner:
+  toolbox:
     replicas: 1
     antiAffinityLabels:
       matchLabels:
