@@ -11,7 +11,6 @@
 # - external Gitaly
 # - external Redis
 # - external NGINX
-# - PersistentVolume configuration
 # - external Object Storage providers
 
 ## The global properties are used to configure multiple charts at once.
@@ -58,7 +57,7 @@ global:
     enabled: true
     class: nginx
     tls:
-      secretName: gitlab-wildcard-tls
+      secretName: gitlab-wildcard-tls-internal-ca
 
   gitlab:
     ## Enterprise license for this GitLab installation

@@ -1,10 +1,10 @@
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
-  name: gitlab-wildcard-tls
+  name: gitlab-wildcard-tls-internal-ca
   namespace: gitlab
 spec:
-  secretName: gitlab-wildcard-tls
+  secretName: gitlab-wildcard-tls-internal-ca
   dnsNames:
   - apps.IPADDR.nip.io
   - "*.apps.IPADDR.nip.io"
