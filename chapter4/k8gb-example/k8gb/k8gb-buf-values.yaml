@@ -16,12 +16,13 @@ k8gb:
   metricsAddress: "0.0.0.0:8080"
 
 coredns:
+  serviceType: LoadBalancer
   isClusterService: false
   deployment:
     skipConfig: true
   image:
     repository: absaoss/k8s_crd
-    tag: "v0.0.4"
+    tag: "v0.0.8"
   serviceAccount:
     create: true
     name: coredns
