@@ -32,17 +32,17 @@ The demo assumes that you have your own DNS server that you can create a delegat
                       (MetalLB Config: 10.2.1.223-10.2.1.225) 
                       (CoreDNS LB IP: 10.2.1.223)  
     
-### Ubuntu Server - NYC Cluster  
-- Ubuntu Server 20.04, IP Address: 10.2.1.157  
+### Ubuntu Server - NYC Cluster Build  
+- Ubuntu Server 20.04, IP Address: 10.2.1.157  ** Your IP will be different, make a note of it for the steps **
 - Single node Kubernetes Cluster created the script in this repo, create-kubeadm-single.sh
-- MetalLB installed in the Cluster, using the configuration and installaion files in the metallb directory, install-metallb-nyc.sh, this will reserve a few IP addresses for K8s LB services (10.2.1.220-10.2.1.222)  
-- K8GB and demo app installed using the script in the repo from the k8gb directory, deploy-k8gb-nyc.sh  
+- MetalLB installed in the Cluster, using the configuration and installaion files in the metallb directory, create-metallb-nyc.sh - Before executing, edit the metallb-config-nyc.yaml, the default config will reserve a few IP addresses for K8s LB services (10.2.1.220-10.2.1.222)  ** Change this to a range that exists on your network **
+- K8GB and demo app installed using the script in the repo from the k8gb directory, deploy-k8gb-nyc.sh  ** Edit the k8gb-nyc-values.yaml to reflect any values for your network, at a minimum, you will need to change the edgeDNSServer: "10.2.1.14" value to point to your internal DNS server **
 
-### Ubuntu Server - Buffalo Cluster  
-- Ubuntu Server 20.04, IP Address: 10.2.1.119  
+### Ubuntu Server - Buffalo Cluster Build  
+- Ubuntu Server 20.04, IP Address: 10.2.1.119  ** Your IP will be different, make a note of it for the steps **
 - Single node Kubernetes Cluster created the script in this repo, create-kubeadm-single.sh  
-- MetalLB installed in the Cluster, using the configuration and installaion files in the metallb directory, install-metallb-buf.sh, this will reserve a few IP addresses for K8s LB services (10.2.1.223-10.2.1.225)  
-- K8GB and demo app installed using the script in the repo from the k8gb directory, deploy-k8gb-buf.sh  
+- MetalLB installed in the Cluster, using the configuration and installaion files in the metallb directory, create-metallb-buf.sh - - Before executing, edit the metallb-config-nyc.yaml, the default config will reserve a few IP addresses for K8s LB services (10.2.1.223-10.2.1.225)  ** Change this to a range that exists on your network **
+- K8GB and demo app installed using the script in the repo from the k8gb directory, deploy-k8gb-buf.sh  ** Edit the k8gb-buf-values.yaml to reflect any values for your network, at a minimum, you will need to change the edgeDNSServer: "10.2.1.14" value to point to your internal DNS server **
   
 ### Windows 2016/2019/2022 Server  
 - Windows Server, IP address: 10.2.1.14  
