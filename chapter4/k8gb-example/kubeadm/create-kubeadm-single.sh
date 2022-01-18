@@ -46,8 +46,7 @@ sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://pack
 echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 
 sudo apt-get update
-sudo apt-get install -y kubelet kubeadm kubectl
-sudo apt-mark hold kubelet kubeadm kubectl
+sudo apt install -y kubelet=1.21.4-00 kubeadm=1.21.4-00 kubectl=1.21.4-00
 
 tput setaf 6
 echo -e "\n \n*******************************************************************************************************************"
@@ -87,7 +86,7 @@ echo -e "Step 5: Creating Kubeadm Single node cluster using a POD CIDR of 10.240
 echo -e "*******************************************************************************************************************"
 tput setaf 3
 
-sudo kubeadm init --pod-network-cidr=10.240.0.0/16
+sudo kubeadm init --pod-network-cidr=10.240.0.0/16 --kubernetes-version=1.21.4
 
 # Copy kube config to users home
 mkdir -p $HOME/.kube
