@@ -1,4 +1,4 @@
-# K8GB Installation Scripts - WIP - Last Updated: 1/18/2022  
+# K8GB Installation Scripts - (BETA Release) - Last Updated: 1/19/2022  
 This is a WIP (Work in Progress) - When the scripts are complete, we will remove the WIP status.  
 This directory contains scripts to create the two clusters used in Chapter 4's K8GB example.    
   
@@ -8,7 +8,7 @@ Once complete, the scripts in this repo will move to the K8GB main GIT repo as a
   
 To create the example from the book, you will need access to the following:  
   
-- (2) New Servers running Ubuntu 20.04  
+- (2) New Servers running Ubuntu 20.04 or 18.04  
 - The scripts in this repo  
 - A DNS server with permissions to create a new Zone that will be delegated to the CoreDNS servers in the K8s clusters  
 - The required K8GB DNS entries for the CoreDNS servers in each K8s clusters (For our example, we will use a Windows 2019 Server as the DNS server)  
@@ -46,12 +46,13 @@ The demo assumes that you have your own DNS server that you can create a delegat
   
 ### Windows 2016/2019/2022 Server  
 - Windows Server, IP address: 10.2.1.14  
-- Create a new Conditional Forwarder for the gb.foowidgets.k8s zone, forwarding to both CoreDNS servers in each K8s cluster, if you are using the same subnet as our example, you would forward to: 10.2.1.220 and 10.2.1.223  
-- One DNS record for each exposed CoreDNS pod in the clusters -  If using the same subnet as the example, the entries would be:  
+- One DNS record for each exposed CoreDNS pod in the clusters, these entries must be in your base root domain, for our example, foowidgets.k8s - If using the same subnet as the example, the entries would be:  
   
   gslb-ns-nyc-gb     10.2.1.220  
   gslb-ns-buf-gb     10.2.1.223  
-  
+
+- Create a new delegation for the gb.foowidgets.k8s zone, forwarding to both CoreDNS servers (1) in each K8s cluster - the delegated FQDNs for our CoreDNS servers in our example are: gslb-ns-us-nyc-gb.foowidgets.k8s and gslb-ns-us-buf-gb.foowidgets.k8s
+    
 ### Kubernetes Example Application  
   
 The K8GB script exeecuted for each cluster will create the following:  
@@ -84,5 +85,6 @@ Now that the NYC site has a failed deployment, the reply from the NGINX server s
   
 # Success!
 This concludes the demo for K8GB.  
-
-
+  
+  
+We would like to thank the K8GB team for their awesome project!  With a special thank you to Yury Tsarev!
