@@ -2,7 +2,7 @@ apiVersion: k8gb.absa.oss/v1beta1
 kind: Gslb
 metadata:
   name: gslb-failover-nyc
-  namespace: k8gb
+  namespace: demo
 spec:
   ingress:
     rules:
