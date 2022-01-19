@@ -12,7 +12,8 @@ To create the example from the book, you will need access to the following:
 - The scripts in this repo  
 - A DNS server with permissions to create a new Zone that will be delegated to the CoreDNS servers in the K8s clusters  
 - The required K8GB DNS entries for the CoreDNS servers in each K8s clusters (For our example, we will use a Windows 2019 Server as the DNS server)  
-- All scripts assume an internal subnet range of 10.2.1.0/24    -    You will need to edit the values for your network  
+- All scripts assume an internal subnet range of 10.2.1.0/24    -    You will need to edit the values for your network 
+- The main Edge DNS server you are using for this implementation should be the default DNS server for your clients.   
       
 # Using the Scripts to create the Infrastructure    
 The following list contains a high level overview of how the scripts can be used to create the K8GB deployment described in Chapter 4.  
@@ -51,7 +52,7 @@ The demo assumes that you have your own DNS server that you can create a delegat
   gslb-ns-nyc-gb     10.2.1.220  
   gslb-ns-buf-gb     10.2.1.223  
 
-- Create a new delegation for the gb.foowidgets.k8s zone, forwarding to both CoreDNS servers (1) in each K8s cluster - the delegated FQDNs for our CoreDNS servers in our example are: gslb-ns-us-nyc-gb.foowidgets.k8s and gslb-ns-us-buf-gb.foowidgets.k8s
+- Create a new delegation for the gb.foowidgets.k8s zone, forwarding to both CoreDNS servers (1) in each K8s cluster - the delegated FQDNs for our CoreDNS servers in our example are: gslb-ns-us-nyc-gb.foowidgets.k8s and gslb-ns-us-buf-gb.foowidgets.k8s.  You can right click your domain in DNS Manager and select 'New Delegation'.  It will ask you for the domain you want to delegate, enter gb and click next.  The final step is to add the delegated Name Servers - add both name servers, gslb-ns-us-nyc-gb.foowidgets.k8s and gslb-ns-us-buf-gb.foowidgets.k8s. and click next to finish the delegation.  
     
 ### Kubernetes Example Application  
   
@@ -70,6 +71,8 @@ Now that K8GB has been deployed to both clusters and an example web server has b
   
 Open a browser on your network and enter the name that was assigned in the gslb object, fe.gb.foowidgets.k8s  
   
+![image](https://user-images.githubusercontent.com/60396639/150191283-18354262-9572-4d44-8dc6-25cfe11c3e77.png)
+  
 Since the primary GeoTag was set to us-nyc, this should reply with the HTML page from the NYC NGINX server.  
   
 ## Testing failover to the Buffalo cluster  
@@ -79,7 +82,9 @@ kubectl scale deployment nginx-fe -n demo --replicas=0
   
 This will cause K8GB to fail the record from the NYC cluster to the Buffalo cluster.  This usually happens within 1-5 seconds.  
   
-Either refresh your browser window, or open a new tab/instance and enter the URL to test the NGINX server, fe.gb.foowidgets.k8s  
+Either refresh your browser window, or open a new tab/instance and enter the URL to test the NGINX server, fe.gb.foowidgets.k8s 
+  
+![image](https://user-images.githubusercontent.com/60396639/150191509-88daa179-b667-42d7-8b0a-d9225c300c8e.png)
   
 Now that the NYC site has a failed deployment, the reply from the NGINX server should be from the Buffalo instance.  
   
