@@ -11,7 +11,7 @@ spec:
           paths:
           - backend:
               serviceName: nginx-fe # Service name to enable GSLB for
-              servicePort: http
+              servicePort: 80
             path: /
   strategy:
     type: failover # Global load balancing strategy
