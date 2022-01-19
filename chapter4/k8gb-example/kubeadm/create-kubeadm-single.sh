@@ -118,10 +118,11 @@ echo -e "Step 8: Installing NGINX Ingress Controller"
 echo -e "*******************************************************************************************************************"
 tput setaf 3
 
-kubectl create ns ingress-nginx
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx
+kubectl apply -f nginx-deploy.yaml
+#kubectl create ns ingress-nginx
+#helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+#helm repo update
+#helm install ingress-nginx ingress-nginx/ingress-nginx --namespace ingress-nginx
 
 tput setaf 6
 echo -e "\n \n*******************************************************************************************************************"
