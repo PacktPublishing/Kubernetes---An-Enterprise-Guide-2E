@@ -106,6 +106,22 @@ openunison:
     image: docker.io/tremolosecurity/openunison-k8s-html
   enable_provisioning: true
   use_standard_jit_workflow: false
+  naas:
+    forms:
+      new_namespace:
+        use_default: true
+    workflows:
+      new_namespace:
+        use_default: true
+    groups:
+      internal:
+        enabled: true
+        suffix: ""
+      external:
+        suffix: "-external"
+        enabled: false
+        admin_group: "CN=openunison-admins,CN=Users,DC=ent2k12,DC=domain,DC=com"
+        cluster_admin_group: "CN=k8s_login_ckuster_admins,CN=Users,DC=ent2k12,DC=domain,DC=com"
 
 myvd_configmap: myvd-book
 
