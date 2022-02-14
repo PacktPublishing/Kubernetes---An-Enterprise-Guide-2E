@@ -72,5 +72,9 @@ tput setaf 2
 
 echo -e "\n\n"
 
+
+# get the kind network
+KIND_NETWORK=$(docker network ls | grep kind | awk '{print $1}')
+
 # Start the HAProxy Container for the Worker Nodes
-docker run --name HAProxy-workers-lb -d -p 80:80 -p 443:443 -v ~/HAProxy:/usr/local/etc/HAProxy:ro haproxy -f /usr/local/etc/HAProxy/HAProxy.cfg
+docker run --name HAProxy-workers-lb --network $KIND_NETWORK -d -p 80:80 -p 443:443 -v ~/HAProxy:/usr/local/etc/HAProxy:ro haproxy -f /usr/local/etc/HAProxy/HAProxy.cfg
