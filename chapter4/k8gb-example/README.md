@@ -37,22 +37,26 @@ The demo assumes that you have your own DNS server that you can create a delegat
 - Ubuntu Server 20.04, IP Address: 10.2.1.157  ** Your IP will be different, make a note of it for the steps **
 - Single node Kubernetes Cluster created the script in this repo, create-kubeadm-single.sh
 - MetalLB installed in the Cluster, using the configuration and installaion files in the metallb directory, create-metallb-nyc.sh - Before executing, edit the metallb-config-nyc.yaml, the default config will reserve a few IP addresses for K8s LB services (10.2.1.220-10.2.1.222)  ** Change this to a range that exists on your network **
-- K8GB and demo app installed using the script in the repo from the k8gb directory, deploy-k8gb-nyc.sh  ** Edit the k8gb-nyc-values.yaml to reflect any values for your network, at a minimum, you will need to change the edgeDNSServer: "10.2.1.14" value to point to your internal DNS server **
+- K8GB and demo app installed using the script in the repo from the k8gb directory, deploy-k8gb-nyc.sh  ** Edit the k8gb-nyc-values.yaml to reflect any values for your network, at a minimum, you will need to change the edgeDNSServer: "10.2.1.14" value to point to your internal DNS server **  
+  
+You will need the IP address that was assigned by MetalLB for the K8GB's LoadBalancer IP.  In our example, the IP assigned was 10.2.1.220.  
 
 ### Ubuntu Server - Buffalo Cluster Build  
 - Ubuntu Server 20.04, IP Address: 10.2.1.119  ** Your IP will be different, make a note of it for the steps **
 - Single node Kubernetes Cluster created the script in this repo, create-kubeadm-single.sh  
 - MetalLB installed in the Cluster, using the configuration and installaion files in the metallb directory, create-metallb-buf.sh - - Before executing, edit the metallb-config-nyc.yaml, the default config will reserve a few IP addresses for K8s LB services (10.2.1.223-10.2.1.225)  ** Change this to a range that exists on your network **
-- K8GB and demo app installed using the script in the repo from the k8gb directory, deploy-k8gb-buf.sh  ** Edit the k8gb-buf-values.yaml to reflect any values for your network, at a minimum, you will need to change the edgeDNSServer: "10.2.1.14" value to point to your internal DNS server **
+- K8GB and demo app installed using the script in the repo from the k8gb directory, deploy-k8gb-buf.sh  ** Edit the k8gb-buf-values.yaml to reflect any values for your network, at a minimum, you will need to change the edgeDNSServer: "10.2.1.14" value to point to your internal DNS server **  
   
-### Windows 2016/2019/2022 Server  
+You will need the IP address that was assigned by MetalLB for the K8GB's LoadBalancer IP.  In our example, the IP assigned was 10.2.1.223.  
+  
+### Windows 2016/2019/2022 Server (Or any Internal DNS Server)    
 - Windows Server, IP address: 10.2.1.14  
 - One DNS record for each exposed CoreDNS pod in the clusters, these entries must be in your base root domain, for our example, foowidgets.k8s - If using the same subnet as the example, the entries would be:  
   
   gslb-ns-nyc-gb     10.2.1.220  
   gslb-ns-buf-gb     10.2.1.223  
 
-- Create a new delegation for the gb.foowidgets.k8s zone, forwarding to both CoreDNS servers (1) in each K8s cluster - the delegated FQDNs for our CoreDNS servers in our example are: gslb-ns-us-nyc-gb.foowidgets.k8s and gslb-ns-us-buf-gb.foowidgets.k8s.  You can right click your domain in DNS Manager and select 'New Delegation'.  It will ask you for the domain you want to delegate, enter gb and click next.  The final step is to add the delegated Name Servers - add both name servers, gslb-ns-us-nyc-gb.foowidgets.k8s and gslb-ns-us-buf-gb.foowidgets.k8s. and click next to finish the delegation.  
+- Create a new delegation for the gb.foowidgets.k8s zone, forwarding to both CoreDNS servers (1) in each K8s cluster - the delegated FQDNs for our CoreDNS servers in our example are: gslb-ns-us-nyc-gb.foowidgets.k8s and gslb-ns-us-buf-gb.foowidgets.k8s.  If you are using a Windows DNS server, you can right click your domain in DNS Manager and select 'New Delegation'.  It will ask you for the domain you want to delegate, enter gb and click next.  The final step is to add the delegated Name Servers - add both name servers, gslb-ns-us-nyc-gb.foowidgets.k8s and gslb-ns-us-buf-gb.foowidgets.k8s. and click next to finish the delegation.  
     
 ### Kubernetes Example Application  
   
