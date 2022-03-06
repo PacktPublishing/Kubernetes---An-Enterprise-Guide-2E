@@ -1,6 +1,6 @@
 # Adding your own users to the ConfigMap  
   
-The included container contains a few users that are used during the exercises, but you can also add your own users for any "extra" testing you may be interested in.  
+The included Apache DS container includes a few users that are used throughout the exercises, but you can also add your own users for any "extra" testing you may be interested in.  
   
 ## Adding a user to the ConfigMap  
   
@@ -65,16 +65,16 @@ data:
     userPassword: password1234
 ```
   
-You can any number of users by adding the same block with the user information you want to add.  
+You can any number of users by adding the same block with the user information you want to add.  Simply change the XXXX values listed below with your desired information.  
   
 ```
-    dn: cn=surovich,ou=Users,DC=domain,DC=com
+    dn: cn=XXXX,ou=Users,DC=domain,DC=com
     objectClass: user
-    cn: surovich
-    givenName: Scott
-    sn: Surovich
-    samAccountName: surovich
-    mail: surovich@nowhere.com
+    cn: XXXX
+    givenName: XXXX
+    sn: XXXX
+    samAccountName: XXXX
+    mail: XXXX@nowhere.com
     title: Main Account
     telephoneNumber: 123-456-7890
     userPassword: password1234
