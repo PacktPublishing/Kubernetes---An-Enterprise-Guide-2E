@@ -70,7 +70,7 @@ We are using an existing image that includes a GUI to view the queries to the dn
 Now that you have your dnsmasq.conf configuration file completed, you can start the dnsmasq container using a docker run from within the excursions/dnsmasq directory:
 
 ```
-docker run --name dnsmasq -d -p 10.2.1.39:53:53/udp -p 10.2.1.39:53:53/tcp -p 10.2.1.39:8080:8080 -v ./dnsmasq.conf:/etc/dnsmasq.conf --log-opt "max-size=100m" -e "HTTP_USER=admin" -e "HTTP_PASS=admin" --restart always jpillora/dnsmasq
+docker run --name dnsmasq -d -p 10.2.1.39:53:53/udp -p 10.2.1.39:53:53/tcp -p 10.2.1.39:8080:8080 -v $PWD/dnsmasq.conf:/etc/dnsmasq.conf --log-opt "max-size=100m" -e "HTTP_USER=admin" -e "HTTP_PASS=admin" --restart always jpillora/dnsmasq
 ```
 
 To explain the Docker run command - We are naming the container dnsmasq, running it in the background, exposing ports on ONLY the newly added IP addresses (10.2.1.39), mounting the dnsmasq.conf file in the container, setting log options, and finally, setting the username and password for the GUI view.
