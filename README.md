@@ -18,7 +18,7 @@ ISBN-10: 1803230037 <br/>
 ISBN-13: 978-1803230030 <br/>
 Kindle ASIN: B09FKKCXHG  
 
-<a href="https://amzn.to/35UL7L4">
+<a href="https://amzn.to/3MqWvPw">
 <img src="cover.png" width="25%" height="25%">
 </a>  <br/>
 <br/>
@@ -26,7 +26,7 @@ Kindle ASIN: B09FKKCXHG
 ## Links
 
 - <a href="https://amzn.to/3tDdJRk">Amazon link</a>
-- <a href="https://www.packtpub.com/product/kubernetes-an-enterprise-guide-second-edition/9781803230030">Packt link
+- <a href="https://packt.link/yYJ1i">Packt link
   
  
   
