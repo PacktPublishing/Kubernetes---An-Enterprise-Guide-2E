@@ -1,11 +1,34 @@
 # Kubernetes: An Enterprise Guide, Second Edition, published by Packt
-  
+
 Note:  Chapter 3 does not have any exercises, therefore, you will not find any code or scripts in the repo for those chapters.  
   
-Welcome to the repository for the Packt book, Kubernetes: An Enterprise Guide, Second Edition, created by Marc Boorshtein nd Scott Surovich.  
+Welcome to the repository for the Packt book, Kubernetes: An Enterprise Guide, Second Edition, created by Marc Boorshtein and Scott Surovich.  
   
 This repo contains the scripts that are references in the book exercises.  You should clone this repo to the host you will use for the exercises included with the chapters.
-Each chapter will explain the important portions of the scripts so you will have an understanding of what the scripts are executing.  While the scripts are not required, it will save you time over typing manifests manually.  
+Each chapter will explain the important portions of the scripts so you will have an understanding of what the scripts are executing.  While the scripts are not required, it will save your time over typing manifests manually. 
+
+## Code Repository
+
+Paperback: 578 pages <br/>
+Publisher: Packt Publishing<br/>
+Language: English
+
+
+ISBN-10: 1803230037 <br/>
+ISBN-13: 978-1803230030 <br/>
+Kindle ASIN: B09FKKCXHG  
+
+<a href="https://amzn.to/35UL7L4">
+<img src="cover.png" width="25%" height="25%">
+</a>  <br/>
+<br/>
+
+## Links
+
+- <a href="https://amzn.to/3tDdJRk">Amazon link</a>
+- <a href="https://www.packtpub.com/product/kubernetes-an-enterprise-guide-second-edition/9781803230030">Packt link
+  
+ 
   
 # Required Experience  
 You should have a basic understanding of Docker and Kubernetes before reading the book.  
