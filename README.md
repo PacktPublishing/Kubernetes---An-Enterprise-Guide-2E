@@ -18,7 +18,7 @@ ISBN-10: 1803230037 <br/>
 ISBN-13: 978-1803230030 <br/>
 Kindle ASIN: B09FKKCXHG  
 
-<a href="https://amzn.to/3MqWvPw">
+<a href="https://amzn.to/3MztYaw">
 <img src="cover.png" width="25%" height="25%">
 </a>  <br/>
 <br/>
