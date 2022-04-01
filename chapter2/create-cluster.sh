@@ -38,7 +38,6 @@ tput setaf 3
 kind create cluster --name cluster01 --config cluster01-kind.yaml
 
 tput setaf 5
-#Install Calico
 echo -e "\n \n*******************************************************************************************************************"
 echo -e "Step 4: Adding node label for Ingress Controller to worker node"
 echo -e "*******************************************************************************************************************"
@@ -50,7 +49,6 @@ echo -e "\n \n******************************************************************
 echo -e "Step 5: Install Calico from local file, using 10.240.0.0/16 as the pod CIDR"
 echo -e "*******************************************************************************************************************"
 tput setaf 3
-#kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 kubectl create -f calico.yaml
 
 #Deploy NGINX
