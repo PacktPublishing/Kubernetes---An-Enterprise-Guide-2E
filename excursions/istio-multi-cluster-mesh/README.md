@@ -16,11 +16,27 @@ Host main NIC: ens33
   
 Additional VIP's added to ens33:  10.2.1.40/24 and 10.2.1.41/24  
   
+DNSmasq will be configured with two domains, one for each cluster.  The assigned domain names and VIP's can be edited in the dnsmasq.conf file.  
+
+The portion you will need to update are shown below:  
+```
+# This section defines where DNS queries will forward for any domain not defined in the next section
+server=10.2.1.14
+server=1.1.1.1
+
+# Define the Wildcard domains you want below.  Each domain should point to a different IP for the defined domain.
+# In this example, we have two KinD clusters, one for a domain called foowidgets.com which will send all traffic to 10.2.1.39 (the worker node for this KinD cluster.
+address=/istio-cls1.com/10.2.1.40
+address=/istio-cls2.com/10.2.1.41
+```
+The first section should contain any edgde DNS servers you will forward to from your DNSmasq container.  The second portion defines the domains that we will use  and the IP address of the Istio-Ingressgateway IP.  In our configuration, we will forward *.istio-cls1.com to 10.2.1.40 and *.istio-cls2.com to 10.2.1.41.  
+  
 ## Adding VIP's to the Hosts NIC  
-To add the two VIP's, we execute an ip addr add command for each VIP to be added:   
+To add the two VIP's for our KinD Clusters and the IP we will use for the DNSmasq container, we execute an ip addr add command for each VIP to be added:   
 ```  
-sudo ip addr add 10.2.1.40/24 broadcast 10.2.1.255 dev ens33 label ens33:1  
-sudo ip addr add 10.2.1.41/24 broadcast 10.2.1.255 dev ens33 label ens33:2  
+sudo ip addr add 10.2.1.39/24 broadcast 10.2.1.255 dev ens33 label ens33:1
+sudo ip addr add 10.2.1.40/24 broadcast 10.2.1.255 dev ens33 label ens33:2  
+sudo ip addr add 10.2.1.41/24 broadcast 10.2.1.255 dev ens33 label ens33:3  
 ```  
 Once added you an look at the output from an ip addr command to verify the additional IP's were added.  
   
@@ -52,3 +68,16 @@ Now that the cluster configurations contain the VIP's for your network, create b
 ```
 ./create-clusters.sh  
 ```
+The cluster deployents are, essentially, the same as the standard book exercises.  Once deployed, you will have two clusters running, one on each VIP you have assigned.  
+  
+Executing a docker ps will show show 4 containers running:  
+CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         PORTS                                                                    NAMES
+b9f112d571e4   kindest/node:v1.18.2   "/usr/local/bin/entr…"   4 minutes ago   Up 4 minutes   10.2.1.41:80->80/tcp, 10.2.1.41:443->443/tcp, 10.2.1.41:2222->2222/tcp   test-cluster02-worker  
+58f984afe306   kindest/node:v1.18.2   "/usr/local/bin/entr…"   4 minutes ago   Up 4 minutes   10.2.1.41:6443->6443/tcp                                                 test-cluster02-control-plane  
+6ff2842092b6   kindest/node:v1.18.2   "/usr/local/bin/entr…"   5 minutes ago   Up 5 minutes   10.2.1.40:80->80/tcp, 10.2.1.40:443->443/tcp, 10.2.1.40:2222->2222/tcp   test-cluster01-worker  
+61044ca25c64   kindest/node:v1.18.2   "/usr/local/bin/entr…"   5 minutes ago   Up 5 minutes   10.2.1.40:6443->6443/tcp                                                 test-cluster01-control-plane  
+    
+Next, we will need to deploy dnsmasq to direct our Istio rules to the correct Ingressgateway.  
+  
+## Configuring DNSmasq for our Clusters  
+
