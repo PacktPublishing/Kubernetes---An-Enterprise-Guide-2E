@@ -62,8 +62,10 @@ There are two cluster configuration files for the KinD clusters we will need to 
   
 Each cluster configuration will need to be updated to use the VIP's for your network.  For our example the cluster01 will use VIP 10.2.1.40 and cluster02 will use VIP 10.2.1.41  -  If you need to change these values, edit each cluster config and replace the (4) IP's in the file(s) with the values for your network before creating the clusters.  
 
-# Deploying the KinD Clusters  
-Now that the cluster configurations contain the VIP's for your network, create both clusters using the create-clusters.sh script in the repository.  This script will deploy both KinD clusters that we will use for the exercise.  
+# Deploying the KinD Clusters and DNSmasq   
+Now that the cluster configurations contain the VIP's for your network, create both clusters using the create-clusters.sh script in the repository.  This script will deploy both KinD clusters that we will use for the exercise.  You will need to edit the Docker command that deploys the DNSmasq container to reflect the IP address you have added for DNSmasq.  In our example, we will use the 10.2.1.39 VIP.  Edit the docker run line with the IP address you will use for DNSmasq and save the file.  
+  
+docker run --name dnsmasq -d -p 10.2.1.39:53:53/udp -p 10.2.1.39:53:53/tcp -p 10.2.1.39:8080:8080 -v $PWD/dnsmasq.conf:/etc/dnsmasq.conf --log-opt "max-size=100m" -e "HTTP_USER=admin" -e "HTTP_PASS=admin" --restart always jpillora/dnsmasq  
   
 ```
 ./create-clusters.sh  
@@ -72,12 +74,23 @@ The cluster deployents are, essentially, the same as the standard book exercises
   
 Executing a docker ps will show show 4 containers running:  
 CONTAINER ID   IMAGE                  COMMAND                  CREATED         STATUS         PORTS                                                                    NAMES
+7850ab3bb562   jpillora/dnsmasq       "webproc --config /e…"   7 minutes ago    Up 7 minutes    10.2.1.39:53->53/tcp, 10.2.1.39:8080->8080/tcp, 10.2.1.39:53->53/udp     dnsmasq  
 b9f112d571e4   kindest/node:v1.18.2   "/usr/local/bin/entr…"   4 minutes ago   Up 4 minutes   10.2.1.41:80->80/tcp, 10.2.1.41:443->443/tcp, 10.2.1.41:2222->2222/tcp   test-cluster02-worker  
 58f984afe306   kindest/node:v1.18.2   "/usr/local/bin/entr…"   4 minutes ago   Up 4 minutes   10.2.1.41:6443->6443/tcp                                                 test-cluster02-control-plane  
 6ff2842092b6   kindest/node:v1.18.2   "/usr/local/bin/entr…"   5 minutes ago   Up 5 minutes   10.2.1.40:80->80/tcp, 10.2.1.40:443->443/tcp, 10.2.1.40:2222->2222/tcp   test-cluster01-worker  
 61044ca25c64   kindest/node:v1.18.2   "/usr/local/bin/entr…"   5 minutes ago   Up 5 minutes   10.2.1.40:6443->6443/tcp                                                 test-cluster01-control-plane  
     
-Next, we will need to deploy dnsmasq to direct our Istio rules to the correct Ingressgateway.  
+# Configure a Host to use DNSmasq as DNS Server  
+Any machine that you will use to test the multi-cluster mesh design will need to use the IP address of your DNSmasq deployment as its DNS server.  In our example we have bound the IP 10.2.1.39 to DNSmasq - So we have configured our main Host to use 10.2.1.39 as its DNS server.  Once configured, you can test the container by pinging any name in each DNSmasq domain.  
   
-## Configuring DNSmasq for our Clusters  
+PING www.istio-cls1.com (10.2.1.40) 56(84) bytes of data.  
+64 bytes from 10.2.1.40 (10.2.1.40): icmp_seq=1 ttl=64 time=0.032 ms  
+64 bytes from 10.2.1.40 (10.2.1.40): icmp_seq=2 ttl=64 time=0.061 ms  
+  
+PING www.istio-cls2.com (10.2.1.41) 56(84) bytes of data.  
+64 bytes from 10.2.1.41 (10.2.1.41): icmp_seq=1 ttl=64 time=0.030 ms  
+64 bytes from 10.2.1.41 (10.2.1.41): icmp_seq=2 ttl=64 time=0.033 ms  
 
+This confirms that DNSmasq is working and the domains are resolving to their correct Ingress-Gateway IP addresses.  
+  
+  
