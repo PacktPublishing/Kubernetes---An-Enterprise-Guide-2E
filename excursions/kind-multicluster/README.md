@@ -77,9 +77,9 @@ README.md	- This File
 ## KinD Cluster Configuration Files  
 There are two cluster configuration files for the KinD clusters we will need to create.  
   
-- cluster1  
-- cluster2  
-  
+cluster1  
+cluster2  
+    
 Each cluster configuration will need to be updated to use the IP's for your network.  For our example the cluster1 will use IP 10.2.1.40 and cluster2 will use IP 10.2.1.41  -  If you need to change these values, edit each cluster config and replace the (4) IP's in the file(s) with the values for your network before creating the clusters.  
 
 # Deploying the KinD Clusters and DNSmasq (Script: create-clusters.sh)     
@@ -101,17 +101,17 @@ You can verify the clusters were created by executing a kind get clusters, you w
 ```
 kind get clusters
 ```
-cluster1
+cluster1  
 cluster2  
   
 Executing a docker ps will show show 5 containers running (4 containers for the KinD Clusters, and 1 container for DNSmasq) and their listening ports:
   
-CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                                                    NAMES
-234c01037812   kindest/node:v1.21.1   "/usr/local/bin/entr…"   3 minutes ago    Up 2 minutes    10.2.1.41:6443->6443/tcp                                                 cluster2-control-plane
-1f969f618684   kindest/node:v1.21.1   "/usr/local/bin/entr…"   3 minutes ago    Up 2 minutes    10.2.1.41:80->80/tcp, 10.2.1.41:443->443/tcp, 10.2.1.41:2222->2222/tcp   cluster2-worker
-c72c3b382bec   kindest/node:v1.21.1   "/usr/local/bin/entr…"   4 minutes ago    Up 3 minutes    10.2.1.40:6443->6443/tcp                                                 cluster1-control-plane
-36778679159e   kindest/node:v1.21.1   "/usr/local/bin/entr…"   4 minutes ago    Up 3 minutes    10.2.1.40:80->80/tcp, 10.2.1.40:443->443/tcp, 10.2.1.40:2222->2222/tcp   cluster1-worker
-5e91473fda3e   jpillora/dnsmasq       "webproc --config /e…"   30 minutes ago   Up 30 minutes   10.2.1.67:53->53/tcp, 10.2.1.67:8080->8080/tcp, 10.2.1.67:53->53/udp     dnsmasq
+CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                                                    NAMES  
+234c01037812   kindest/node:v1.21.1   "/usr/local/bin/entr…"   3 minutes ago    Up 2 minutes    10.2.1.41:6443->6443/tcp                                                 cluster2-control-plane  
+1f969f618684   kindest/node:v1.21.1   "/usr/local/bin/entr…"   3 minutes ago    Up 2 minutes    10.2.1.41:80->80/tcp, 10.2.1.41:443->443/tcp, 10.2.1.41:2222->2222/tcp   cluster2-worker  
+c72c3b382bec   kindest/node:v1.21.1   "/usr/local/bin/entr…"   4 minutes ago    Up 3 minutes    10.2.1.40:6443->6443/tcp                                                 cluster1-control-plane  
+36778679159e   kindest/node:v1.21.1   "/usr/local/bin/entr…"   4 minutes ago    Up 3 minutes    10.2.1.40:80->80/tcp, 10.2.1.40:443->443/tcp, 10.2.1.40:2222->2222/tcp   cluster1-worker  
+5e91473fda3e   jpillora/dnsmasq       "webproc --config /e…"   30 minutes ago   Up 30 minutes   10.2.1.67:53->53/tcp, 10.2.1.67:8080->8080/tcp, 10.2.1.67:53->53/udp     dnsmasq  
   
 You can see that the DNSmasq container is listening on the main NIC, cluster1 is listening on the 10.2.1.40 IP and cluster2 is listening on the 10.2.1.41 IP.   
 # Kubernetes Context  
@@ -119,9 +119,9 @@ Once you have deployed the clusters, you will have two clusters in your Kubernet
   
 ``kubectl config get-contexts``  
 
-CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE
-          kind-cluster1   kind-cluster1   kind-cluster1
-*         kind-cluster2   kind-cluster2   kind-cluster2
+CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE  
+          kind-cluster1   kind-cluster1   kind-cluster1  
+*         kind-cluster2   kind-cluster2   kind-cluster2  
   
 Switch your context as needed when you are deploying workloads to a cluster.    
 
@@ -148,9 +148,9 @@ The first entry needs to be the IP where DNSmasq is running, in our example, 10.
 
 Once configured, you can test the container by pinging any name in each DNSmasq domain. Since each DNSmasq domain is set up as a wildcard domain, we can use any host name to test name resolution:   
   
-PING www.cluster1.local (10.2.1.40) 56(84) bytes of data.  
-64 bytes from 10.2.1.40 (10.2.1.40): icmp_seq=1 ttl=64 time=0.032 ms  
-64 bytes from 10.2.1.40 (10.2.1.40): icmp_seq=2 ttl=64 time=0.061 ms  
+PING www.cluster1.local (10.2.1.40) 56(84) bytes of data.    
+64 bytes from 10.2.1.40 (10.2.1.40): icmp_seq=1 ttl=64 time=0.032 ms    
+64 bytes from 10.2.1.40 (10.2.1.40): icmp_seq=2 ttl=64 time=0.061 ms    
   
 PING www.cluster2.local (10.2.1.41) 56(84) bytes of data.  
 64 bytes from 10.2.1.41 (10.2.1.41): icmp_seq=1 ttl=64 time=0.030 ms  
