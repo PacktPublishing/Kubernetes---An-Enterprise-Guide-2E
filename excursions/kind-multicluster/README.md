@@ -7,7 +7,7 @@ While our example deploys (2) clusters, you can add as many as you want.  You ar
 To deploy the example clusters provided in this repo, we suggest the following:  
   
 - A Host with at least three IP address, the main NIC IP and (2) Additional IP's on the network. 
-- This repository for the deployent scripts.  
+- This repository for the deployment scripts.  
 - DNSmasq for local name resolution for any Ingress testing you may need to do.    
   
 # Example Network Configuration  
@@ -32,7 +32,8 @@ address=/cluster1.local/10.2.1.40
 address=/cluster2.local/10.2.1.41
 ```  
 
-The first section should contain any edgde DNS servers you will forward to from your DNSmasq container.  The second portion defines the domains that we will use  and the IP address of the Istio-Ingressgateway IP.  In our configuration, we will forward *.cluster1.local to 10.2.1.40 and *.cluster2.local to 10.2.1.41.  
+The first section should contain any edge DNS servers you will forward to from your DNSmasq container.  The second portion defines the domains that we will use  and the IP address of the Istio-Ingressgateway IP.  In our configuration, we will forward *.cluster1.local to 10.2.1.40 and *.cluster2.local to 10.2.1.41.  
+  
 ## Adding IP's to the Hosts NIC  
 To add additional IPs to your NIC, you need to edit the netplan config from our default Ubuntu 20.04 server.  This file is located here: /etc/netplan/00-installer-config.yaml  
   
@@ -59,7 +60,7 @@ If you changed the main IP in the config file, you will be kicked off the host a
 
   
 # Repository Scripts/File Overview  
-This repo contains various ascript and configuration files to make creating the deployments as easy as possible.  So what are the functions of each file in the repo?  
+This repo contains various scripts and configuration files to make creating the deployments as easy as possible.  So, what are the functions of each file in the repo?  
 
 ## Directory Structure and Files  
   
@@ -94,7 +95,7 @@ Once you have edited the docker run command, execute the script to create the cl
 ```
 ./create-clusters.sh  
 ```
-The cluster deployents are, essentially, the same as the standard book exercises.  Once deployed, you will have two clusters running, one on each VIP you have assigned.  
+The cluster deployments are, essentially, the same as the standard book exercises.  Once deployed, you will have two clusters running, one on each VIP you have assigned.  
   
 You can verify the clusters were created by executing a kind get clusters, you will see the output below:
 
@@ -104,7 +105,7 @@ kind get clusters
 cluster1  
 cluster2  
   
-Executing a docker ps will show show 5 containers running (4 containers for the KinD Clusters, and 1 container for DNSmasq) and their listening ports:
+Executing a docker ps will show 5 containers running (4 containers for the KinD Clusters, and 1 container for DNSmasq) and their listening ports:
   
 CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                                                    NAMES  
 234c01037812   kindest/node:v1.21.1   "/usr/local/bin/entr…"   3 minutes ago    Up 2 minutes    10.2.1.41:6443->6443/tcp                                                 cluster2-control-plane  
