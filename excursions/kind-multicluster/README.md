@@ -1,6 +1,8 @@
 # KinD Multi-Cluster Deployment using DNSmasq   
 This repo contains an extra Excursion from the original book material to provide experience creating a Multi-Cluster Kubernetes development environment using a single Host running two different KinD Clusters.  
   
+While our example deploys (2) clusters, you can add as many as you want.  You are only limited by the resources available on your development server.  
+  
 # Overview of Deployment  
 To deploy the example clusters provided in this repo, we suggest the following:  
   
@@ -58,7 +60,22 @@ If you changed the main IP in the config file, you will be kicked off the host a
   
 # Repository Scripts/File Overview  
 This repo contains various ascript and configuration files to make creating the deployments as easy as possible.  So what are the functions of each file in the repo?  
+
+## Directory Structure and Files  
   
+Script				Function  				Requires Editing
+----------------------		-------------------------------------	----------------
+calico.yaml			Deploys Calico to the KinD Cluster 	No  
+cluster1.yaml			Config file used for cluster1		Yes - IP address changes  
+cluster2.yaml			Config file used for cluster		Yes - IP address changes  
+create-clusters.sh		Creates DNSmasq Container and Clusters	Yes - IP address change for DNSmasq Docker run command  
+create-kind-cluster.sh		Creates the clusters			No - Called from create-clusters.sh  
+dnsmasq.conf			Config file used for DNSmasq		Yes - IP address changes  
+get_helm.sh  			Download and installs Helm3		No  
+install-kind.sh			Download and installs KinD		No  
+nginx-deploy.yaml		Deploys NGINX-Ingress to cluster	No  
+README.md			-- This File --  
+    
 ## KinD Cluster Configuration Files  
 There are two cluster configuration files for the KinD clusters we will need to create.  
   
@@ -99,6 +116,17 @@ c72c3b382bec   kindest/node:v1.21.1   "/usr/local/bin/entr…"   4 minutes ago  
 5e91473fda3e   jpillora/dnsmasq       "webproc --config /e…"   30 minutes ago   Up 30 minutes   10.2.1.67:53->53/tcp, 10.2.1.67:8080->8080/tcp, 10.2.1.67:53->53/udp     dnsmasq
   
 You can see that the DNSmasq container is listening on the main NIC, cluster1 is listening on the 10.2.1.40 IP and cluster2 is listening on the 10.2.1.41 IP.   
+# Kubernetes Context  
+Once you have deployed the clusters, you will have two clusters in your Kubernetes config context:  
+  
+``kubectl config get-contexts``  
+
+CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE
+          kind-cluster1   kind-cluster1   kind-cluster1
+*         kind-cluster2   kind-cluster2   kind-cluster2
+  
+Switch your context as needed when you are deploying workloads to a cluster.    
+
 # Configure a Host to use DNSmasq as DNS Server  
 Any machine that you will use to test the multi-cluster mesh design will need to use the IP address of your DNSmasq deployment as its DNS server.  In our example we have bound the IP 10.2.1.67 to DNSmasq - So we have configured our main Host to use 10.2.1.67 as its DNS server.  
   
@@ -131,5 +159,15 @@ PING www.cluster2.local (10.2.1.41) 56(84) bytes of data.
 64 bytes from 10.2.1.41 (10.2.1.41): icmp_seq=2 ttl=64 time=0.033 ms  
 
 This confirms that DNSmasq is working and the domains are resolving to their correct Ingress-Gateway IP addresses.  
+  
+# What can you do now?  
+While a single KinD cluster can be used to learn a lot, having multiple clusters available allows you to extend your development use-cases to include tools that can leverage multiple clusters like:  
+  
+- Multi-Cluster Istio (A WIP excursion that will be released soon)  
+- Federated authentication testing with and IdP like Openunison from Tremolo Security  
+- K8GB (A WIP excursion that will be published in Q3)  
+- And many more....  
+  
+Using KinD for these tests will allow you to learn and implement use-cases that many Enterprises require, all while limiting the require resources for the testing.  
   
   
