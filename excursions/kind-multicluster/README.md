@@ -64,16 +64,18 @@ This repo contains various scripts and configuration files to make creating the 
 
 ## Directory Structure and Files  
   
-calico.yaml- Deploys Calico to the KinD Cluster (No Edits Required)  
-cluster1.yaml -	Config file used for cluster1	 (Edits Required - IP address changes)  
-cluster2.yaml	- Config file used for cluster2  (Edits Required - IP address changes)
-create-clusters.sh - Creates DNSmasq Container and Clusters	 (Edits Required - IP address change for DNSmasq Docker run command)    
-create-kind-cluster.sh - Creates the clusters  (No Edits Required)    
-dnsmasq.conf - Config file used for DNSmasq  (Edits Required - IP address changes)    
-get_helm.sh - Download and installs Helm3  (No Edits Required)
-install-kind.sh - Download and installs KinD  (No Edits Required)
-nginx-deploy.yaml	-Deploys NGINX-Ingress to cluster  (No Edits Required)  
-README.md	- This File    
+| File                     | Description                              | Edits Required        |
+| ------------------------ | ---------------------------------------- | --------------------- |
+| calico.yaml              | Deploys Calico to the KinD Cluster       | (No Edits Required)   |  
+| cluster1.yaml            | Config file used for cluster1	          | IP address changes    |  
+| cluster2.yaml            | Config file used for cluster2            | IP address changes    |
+| create-clusters.sh       | Creates DNSmasq Container and Clusters	  | IP address change     |    
+| create-kind-cluster.sh   | Creates the clusters                     | (No Edits Required)   |
+| dnsmasq.conf             | Config file used for DNSmasq             | IP address changes    |    
+| get_helm.sh              | Download and installs Helm3              | (No Edits Required)   |
+| install-kind.sh          | Download and installs KinD               | (No Edits Required)   |
+| nginx-deploy.yaml	       | Deploys NGINX-Ingress to cluster         | (No Edits Required)   | 
+| README.md	               | This File    
     
 ## KinD Cluster Configuration Files  
 There are two cluster configuration files for the KinD clusters we will need to create.  
