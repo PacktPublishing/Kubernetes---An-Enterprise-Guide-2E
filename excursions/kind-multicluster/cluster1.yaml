@@ -1,7 +1,7 @@
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
 networking:
-  apiServerAddress: "10.2.1.40"
+  apiServerAddress: 10.2.1.40
   disableDefaultCNI: true
   apiServerPort: 6443
 kubeadmConfigPatches:
@@ -26,13 +26,13 @@ nodes:
   extraPortMappings:
   - containerPort: 80
     hostPort: 80
-    listenAddress: "10.2.1.40"
+    listenAddress: 10.2.1.40
   - containerPort: 443
     hostPort: 443
-    listenAddress: "10.2.1.40"
+    listenAddress: 10.2.1.40
   - containerPort: 2222
     hostPort: 2222
-    listenAddress: "10.2.1.40"
+    listenAddress: 10.2.1.40
   extraMounts:
   - hostPath: /dev
     containerPath: /dev

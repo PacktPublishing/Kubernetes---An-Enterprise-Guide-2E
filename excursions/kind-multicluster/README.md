@@ -2,11 +2,13 @@
 This repo contains an extra Excursion from the original book material to provide experience creating a Multi-Cluster Kubernetes development environment using a single Host running two different KinD Clusters.  
   
 While our example deploys (2) clusters, you can add as many as you want.  You are only limited by the resources available on your development server.  
-  
+ 
+The script were updated on 6/9 to make deployment easier.  All unique options to the deployment are in the envars.sh scipt and the deployment scripts will use the information in this file to create both clusters and a DNSmasq container with a single script execution.   You will need to edit the envars.sh file before deploying the clusters.
+ 
 # Overview of Deployment  
 To deploy the example clusters provided in this repo, we suggest the following:  
   
-- A Host with at least three IP address, the main NIC IP and (2) Additional IP's on the network. 
+- A Host with at least three static IP addresses, the main NIC IP and (2) Additional IP's on the network. 
 - This repository for the deployment scripts.  
 - DNSmasq for local name resolution for any Ingress testing you may need to do.    
   
@@ -16,100 +18,86 @@ Our example network is on 10.2.1.0/24
 Host Main IP: 10.2.1.67/24  
 Host main NIC: ens33
   
-Additional IP's added to ens33:  10.2.1.40/24 and 10.2.1.41/24  
-  
-DNSmasq will be configured with two domains, one for each cluster.  The assigned domain names and IP's can be edited in the dnsmasq.conf file.  
-
-The portion in the config you will need to update are shown below:  
-```
-# This section defines where DNS queries will forward for any domain not defined in the next section
-server=10.2.1.14
-server=10.2.1.1
-
-# Define the Wildcard domains you want below.  Each domain should point to a different IP for the defined domain.
-# In this example, we have two KinD clusters, one for a domain called foowidgets.com which will send all traffic to 10.2.1.39 (the worker node for this KinD cluster.
-address=/cluster1.local/10.2.1.40
-address=/cluster2.local/10.2.1.41
-```  
-
-The first section should contain any edge DNS servers you will forward to from your DNSmasq container.  The second portion defines the domains that we will use  and the IP address of the Istio-Ingressgateway IP.  In our configuration, we will forward *.cluster1.local to 10.2.1.40 and *.cluster2.local to 10.2.1.41.  
-  
-## Adding IP's to the Hosts NIC  
-To add additional IPs to your NIC, you need to edit the netplan config from our default Ubuntu 20.04 server.  This file is located here: /etc/netplan/00-installer-config.yaml  
-  
-Replace the contents of the file with the text below, changing the three IP's for your desired network configuration.  
-
-```
-# This is the network config written by 'subiquity'
-network:
-  ethernets:
-    ens33:
-      addresses: [10.2.1.67/24,10.2.1.40/24,10.2.1.41/24]
-      gateway4: 10.2.1.1
-      nameservers:
-        addresses: [10.2.1.67, 10.2.1.1]
-  version: 2
-``` 
-  
-Save the file and to implement the new IP's, execute a netplan change:  
-```
-sudo netplan change
-```
-  
-If you changed the main IP in the config file, you will be kicked off the host after executing the apply command.  Simply SSH into your host using the first IP you assigned in the configuration.  
-
-  
+Additional IP's added to ens33:  10.2.1.40/24 and 10.2.1.41/24  - we will also statically assign the main IP address in our example since it was assigned via DHCP.  
+    
 # Repository Scripts/File Overview  
 This repo contains various scripts and configuration files to make creating the deployments as easy as possible.  So, what are the functions of each file in the repo?  
 
 ## Directory Structure and Files  
   
-| File                     | Description                              | Edits Required        |
-| ------------------------ | ---------------------------------------- | --------------------- |
-| calico.yaml              | Deploys Calico to the KinD Cluster       | (No Edits Required)   |  
-| cluster1.yaml            | Config file used for cluster1	          | IP address changes    |  
-| cluster2.yaml            | Config file used for cluster2            | IP address changes    |
-| create-clusters.sh       | Creates DNSmasq Container and Clusters	  | IP address change     |    
-| create-kind-cluster.sh * | Creates the clusters                     | (No Edits Required)   |
-| dnsmasq.conf             | Config file used for DNSmasq             | IP address changes    |    
-| get_helm.sh *            | Download and installs Helm3              | (No Edits Required)   |
-| install-kind.sh *        | Download and installs KinD               | (No Edits Required)   |
-| nginx-deploy.yaml *      | Deploys NGINX-Ingress to cluster         | (No Edits Required)   | 
-| README.md	               | This File                                |                       |
-|                                                                                             |
-| * = Script is called from another script, it is not executed directly.                      |
-    
-## KinD Cluster Configuration Files  
-There are two cluster configuration files for the KinD clusters we will need to create.  
-  
-cluster1  
-cluster2  
-    
-Each cluster configuration will need to be updated to use the IP's for your network.  For our example the cluster1 will use IP 10.2.1.40 and cluster2 will use IP 10.2.1.41  -  If you need to change these values, edit each cluster config and replace the (4) IP's in the file(s) with the values for your network before creating the clusters.  
+| File                     | Description                              |  
+| ------------------------ | ---------------------------------------- |  
+| calico.yaml              | Deploys Calico to the KinD Cluster       |  
+| cluster1.yaml            | Config file used for cluster1	      |    
+| cluster2.yaml            | Config file used for cluster2            |  
+| create-clusters.sh       | Creates DNSmasq Container and Clusters   |     
+| create-kind-cluster.sh * | Creates the clusters                     |  
+| dnsmasq.conf             | Config file used for DNSmasq             |
+| envars.sh                | Main File for unique cluster Config      |  
+| get_helm.sh *            | Download and installs Helm3              | 
+| install-kind.sh *        | Download and installs KinD               | 
+| inginx-deploy.yaml *     | Deploys NGINX-Ingress to cluster         |   
+| README.md	           | This File                                |  
+| * = Script is called from another script                            |
+      
+## Editing the envars.sh Configuration File  
+This file contains every value you need to create two KinD clusters with DNSmasq fully configured using a single deployment script called create-clusters.sh.  
+We had to make a lot of assumptions to automate the deployment, so we assume the following:
 
+- A default Ubuntu 20.04 Server  
+- A subnet value of /24  
+- Whatever IP is assigned to the main NIC will be re-used as the main NIC IP (even if its DHCP assigned to begin with)  
+  
+If you are using DHCP for the main NIC, make a note of the assigned IP since you will reuse it in the envars.sh file.  You will also need to reserve the address in your DHCP server to avoid any conflicts in the future. If you try to use a different IP, other than the currently assigned IP on the host, you will be dsconnected during the sript execution and the scripts will halt.  (Sorry, working on a different solution to avoid this).  
+
+Simple edit the values to your requirements:  
+  
+```
+# This file contains the information required to automate the deployment of a multi-cluster environment using KinD
+# You can accomplish this with various different tools, but we will use simple Bash exports to make it easier for all readers to follow
+
+# Set the main NIC name and three IP information (ie: ens33 with IP addresses 10.2.1.67, 10.2.1.40, and 10.2.1.41)
+
+export main_nic="ens33"
+export nic_ip1="10.2.1.67"
+export nic_ip2="10.2.1.40"
+export nic_ip3="10.2.1.41"
+export nic_gw="10.2.1.1"
+export nic_edge_dns="10.2.1.1"  # The first IP address (nic_ip1) will be used as the primary DNS server for the host, this is a backup DNS entry)
+
+# Set the Domains that will be used for DNSmasq
+
+export dns_domain1="cluster1.local"
+export dns_domain2="cluster2.local"
+```
+
+| Value            | Descrition                                                        |  
+| ---------------- | ----------------------------------------------------------------- |  
+| main_nic         | This is the name of your NIC in Ubuntu                            |  
+| nic_ip1          | This is the main IP address that will be used, as described above |  
+| nic_ip2          | This will be used to create the first cluster                     |  
+| nic_ip3          | This will be used to create the second cluster                    |  
+| nic_gw           | This is your default gateway                                      |  
+| nic_edge_dns     | This is your DNS server for standard queries (often your GW)      |  
+| dns_domain1      | This is the domain name you want to use for the first cluster     |  
+| dns_domain2      | This is the domain name you want to use for the second cluster    |  
+  
+Edit the values and save the file before continuing to deploy the clusters.  
+  
+Even though we will send a restart to netplan, you will remain connected to the host since the main IP will not change.    
+  
 # Deploying the KinD Clusters and DNSmasq (Script: create-clusters.sh)     
-Now that the cluster configurations contain the VIP's for your network, create both clusters using the create-clusters.sh script in the repository.  This script will deploy both KinD clusters that we will use for the exercise.  You will need to edit the Docker command in the create-cluster.sh script that deploys the DNSmasq container to reflect the IP address you have added for DNSmasq.  In our example, we will use the 10.2.1.67 IP.  Edit the docker run line with the IP address you will use for DNSmasq and save the file.  
-
-```  
-docker run --name dnsmasq -d -p 10.2.1.39:53:53/udp -p 10.2.1.39:53:53/tcp -p 10.2.1.39:8080:8080 -v $PWD/dnsmasq.conf:/etc/dnsmasq.conf --log-opt "max-size=100m" -e "HTTP_USER=admin" -e "HTTP_PASS=admin" --restart always jpillora/dnsmasq  
-```
-
-Once you have edited the docker run command, execute the script to create the clusters and the DNSmasq container.  
-
-```
-./create-clusters.sh  
-```
-The cluster deployments are, essentially, the same as the standard book exercises.  Once deployed, you will have two clusters running, one on each VIP you have assigned.  
+You can now execute the create-custers.sh script which will create every object required including the KinD clusters, the DNSmasq container, resolv.conf updates, and reconfigure your NIC with the additional addresses.  
   
-You can verify the clusters were created by executing a kind get clusters, you will see the output below:
-
+Once the script completes, you can verify the deployment by listing the KinD clusters.  
+  
 ```
 kind get clusters
 ```
 cluster1  
 cluster2  
   
-Executing a docker ps will show 5 containers running (4 containers for the KinD Clusters, and 1 container for DNSmasq) and their listening ports:
+You can also look at the Docker contaners by executing a docker ps command.  
   
 CONTAINER ID   IMAGE                  COMMAND                  CREATED          STATUS          PORTS                                                                    NAMES  
 234c01037812   kindest/node:v1.21.1   "/usr/local/bin/entr…"   3 minutes ago    Up 2 minutes    10.2.1.41:6443->6443/tcp                                                 cluster2-control-plane  
@@ -130,25 +118,9 @@ CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE
   
 Switch your context as needed when you are deploying workloads to a cluster.    
 
-# Configure a Host to use DNSmasq as DNS Server  
-Any machine that you will use to test the multi-cluster mesh design will need to use the IP address of your DNSmasq deployment as its DNS server.  In our example we have bound the IP 10.2.1.67 to DNSmasq - So we have configured our main Host to use 10.2.1.67 as its DNS server.  
-  
-Since /etc/resolv.conf is a managed file on a base Ubuntu 20.04, we will need to delete the original file (removing the symlink) and create a simple, two line, resolve.conf to replace it.  
-  
-```
-sudo rm /etc/resolve.conf  
-```
-  
-Then create a replacement file similar to the one below:  
-  
-```
-sudo vi /etc/resolve.conf  
-```  
-nameserver 10.2.1.67  
-nameserver 10.2.1.1  
-  
-The first entry needs to be the IP where DNSmasq is running, in our example, 10.2.1.67.  The second nameserver is a backup, our router in this example, which will only be used if the DNSmasq container is not running.  (If the second nameserver is used, you will not be able to resolve the cluster1 or cluster2 domain names)  
-  
+## Configuring other Clients to use DNSmasq  
+The script will configure the local machine to use the DNSmasq container as the main DNS server. Any client on your local network can use DNSmasq for testing by editing the DNS servers and pointing the primary server to your DNSmasq IP address (Your 1st IP addresses on the Ubuntu host).  
+
 ## Testing DNSmasq and NGINX Ingress  
 
 Once configured, you can test the container by pinging any name in each DNSmasq domain. Since each DNSmasq domain is set up as a wildcard domain, we can use any host name to test name resolution:   

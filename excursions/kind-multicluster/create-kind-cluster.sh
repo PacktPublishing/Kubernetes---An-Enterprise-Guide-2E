@@ -100,9 +100,11 @@ echo -e "***********************************************************************
 
 tput setaf 7
 echo -e "\n \n*******************************************************************************************************************"
-echo -e "Your Kind Cluster Information: \n"
-echo -e "Ingress Domain: $hostip.nip.io \n"
-echo -e "Ingress rules will need to use the IP address of your Linux Host in the Domain name \n"
-echo -e "Example:  You have a web server you want to expose using a host called ordering."
-echo -e "          Your ingress rule would use the hostname: ordering.$hostip.nip.io"
+echo -e "Your Kind Cluster(s) Information: \n\n"
+echo -e "Ingress Domains:"
+echo -e "----------------"
+echo -e "Domain Name1: $dns_domain1 on IP Address: $nic_ip2"
+echo -e "Domain Name2: $dns_domain2 on IP Address: $nic_ip3"
+echo -e "\n"
+echo -e "DNmasq IP Address : $nic_ip1 on NIC $main_nic"
 echo -e "******************************************************************************************************************* \n"
