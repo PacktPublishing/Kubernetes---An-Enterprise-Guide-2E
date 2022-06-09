@@ -110,7 +110,7 @@ You can see that the DNSmasq container is listening on the main NIC, cluster1 is
 # Kubernetes Context    
 Once you have deployed the clusters, you will have two clusters in your Kubernetes config context:  
   
-``kubectl config get-contexts```  
+```kubectl config get-contexts```  
 
 CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE  
           kind-cluster1   kind-cluster1   kind-cluster1  
