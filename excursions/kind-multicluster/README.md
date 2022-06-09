@@ -107,10 +107,10 @@ c72c3b382bec   kindest/node:v1.21.1   "/usr/local/bin/entr…"   4 minutes ago  
 5e91473fda3e   jpillora/dnsmasq       "webproc --config /e…"   30 minutes ago   Up 30 minutes   10.2.1.67:53->53/tcp, 10.2.1.67:8080->8080/tcp, 10.2.1.67:53->53/udp     dnsmasq  
   
 You can see that the DNSmasq container is listening on the main NIC, cluster1 is listening on the 10.2.1.40 IP and cluster2 is listening on the 10.2.1.41 IP.   
-# Kubernetes Context  
+# Kubernetes Context    
 Once you have deployed the clusters, you will have two clusters in your Kubernetes config context:  
   
-``kubectl config get-contexts``  
+``kubectl config get-contexts```  
 
 CURRENT   NAME            CLUSTER         AUTHINFO        NAMESPACE  
           kind-cluster1   kind-cluster1   kind-cluster1  
