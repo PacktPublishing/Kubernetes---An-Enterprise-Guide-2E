@@ -30,6 +30,9 @@ nodes:
   - containerPort: 443
     hostPort: 443
     listenAddress: $nic_ip2
+  - containerPort: 53
+    hostPort: 53
+    listenAddress: $nic_ip2
   - containerPort: 2222
     hostPort: 2222
     listenAddress: $nic_ip2
