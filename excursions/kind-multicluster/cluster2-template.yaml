@@ -32,7 +32,7 @@ nodes:
     listenAddress: $nic_ip3
   - containerPort: 53
     hostPort: 53
-    listenAddress: $nic_ip2
+    listenAddress: $nic_ip3
   - containerPort: 2222
     hostPort: 2222
     listenAddress: $nic_ip3

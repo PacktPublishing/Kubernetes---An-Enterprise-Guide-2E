@@ -30,6 +30,9 @@ nodes:
   - containerPort: 443
     hostPort: 443
     listenAddress: 10.2.1.40
+  - containerPort: 53
+    hostPort: 53
+    listenAddress: 10.2.1.40
   - containerPort: 2222
     hostPort: 2222
     listenAddress: 10.2.1.40
