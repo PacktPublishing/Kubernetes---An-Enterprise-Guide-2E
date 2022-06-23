@@ -26,7 +26,8 @@ Kindle ASIN: B09FKKCXHG
 ## Links
 
 - <a href="https://amzn.to/3tDdJRk">Amazon link</a>
-- <a href="https://packt.link/yYJ1i">Packt link
+- <a href="https://packt.link/yYJ1i">Packt link</a>
+- [Labs YouTube Channel](https://www.youtube.com/channel/UCK__yS63yrSI8vavJzainEQ) - Videos of all the labs from the book
   
  
   
