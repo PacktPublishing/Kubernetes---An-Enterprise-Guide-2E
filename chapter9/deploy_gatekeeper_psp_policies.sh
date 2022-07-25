@@ -5,6 +5,6 @@ kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper-
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper-library/8be1fcfb61edfc0e63d055660df178ba6ca1ebb9/library/pod-security-policy/host-namespaces/template.yaml
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper-library/1d3c1e50397d6b15c24f39321a7706b5185011fa/library/pod-security-policy/host-network-ports/template.yaml
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper-library/1d3c1e50397d6b15c24f39321a7706b5185011fa/library/pod-security-policy/privileged-containers/template.yaml
-kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper-library/044687a07418ebb895532bfa30abe99a0cd634db/library/pod-security-policy/proc-mount/template.yaml
+kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper-library/1d3c1e50397d6b15c24f39321a7706b5185011fa/library/pod-security-policy/proc-mount/template.yaml
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper-library/1d3c1e50397d6b15c24f39321a7706b5185011fa/library/pod-security-policy/read-only-root-filesystem/template.yaml
 kubectl apply -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper-library/1d3c1e50397d6b15c24f39321a7706b5185011fa/library/pod-security-policy/users/template.yaml
