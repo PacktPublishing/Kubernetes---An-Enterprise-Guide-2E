@@ -34,7 +34,7 @@ spec:
     kinds:
       - apiGroups: [""]
         kinds: ["Pod"]
-    excludedNamespaces: ["kube-system","calico-system","ingress-nginx"]
+    excludedNamespaces: ["kube-system","calico-system","ingress-nginx","local-path-storage"]
   parameters:
     requiredDropCapabilities: ["all"]
     allowedCapabilities: []
@@ -48,4 +48,4 @@ spec:
     kinds:
       - apiGroups: [""]
         kinds: ["Pod"]
-    excludedNamespaces: ["kube-system","calico-system","ingress-nginx"]
+    excludedNamespaces: ["kube-system","calico-system","ingress-nginx","local-path-storage"]
