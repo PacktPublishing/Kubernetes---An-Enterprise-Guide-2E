@@ -8,7 +8,7 @@ spec:
     kinds:
       - apiGroups: [""]
         kinds: ["Pod"]
-    excludedNamespaces: ["kube-system","calico-system","tigera-operator"]
+    excludedNamespaces: ["kube-system","calico-system","tigera-operator","ingress-nginx"]
   parameters:
     hostNetwork: false
 ---
