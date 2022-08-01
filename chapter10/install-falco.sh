@@ -6,9 +6,34 @@ echo -e "\n \n******************************************************************
 echo -e "Installing Falco..."
 echo -e "*******************************************************************************************************************"
 
+
+tput setaf 6
+echo -e "\n \n*******************************************************************************************************************"
+echo -e "Adding falco repo"
+echo -e "*******************************************************************************************************************"
+tput setaf 2
+
+curl -s https://falco.org/repo/falcosecurity-3672BA8F.asc | apt-key add -
+echo "deb https://download.falco.org/packages/deb stable main" | tee -a /etc/apt/sources.list.d/falcosecurity.list
+apt-get update -y
+
+
+
+
+
 tput setaf 6
 echo -e "\n \n*******************************************************************************************************************"
 echo -e "Adding Linux Headers - If you are not using Ubuntu, you will need to add the headers to your deployment manually"
+echo -e "*******************************************************************************************************************"
+tput setaf 2
+apt-get install -y falco
+systemctl start falco
+systemctl enable falco
+
+
+tput setaf 6
+echo -e "\n \n*******************************************************************************************************************"
+echo -e "Installing and enabling falco"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
 sudo apt-get -y install linux-headers-$(uname -r)

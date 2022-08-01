@@ -24,6 +24,6 @@ input_images[image] {
 
 # load images from CronJob objects
 # Uncomment in chapter 8
-#input_images[image] {
-#  image := input.review.object.spec.jobTemplate.spec.template.spec.containers[_].image
-#}
+input_images[image] {
+  image := input.review.object.spec.jobTemplate.spec.template.spec.containers[_].image
+}
