@@ -6,31 +6,6 @@ echo -e "\n \n******************************************************************
 echo -e "Installing Falco..."
 echo -e "*******************************************************************************************************************"
 
-
-tput setaf 6
-echo -e "\n \n*******************************************************************************************************************"
-echo -e "Adding falco repo"
-echo -e "*******************************************************************************************************************"
-tput setaf 2
-
-curl -s https://falco.org/repo/falcosecurity-3672BA8F.asc | sudo apt-key add -
-echo "deb https://download.falco.org/packages/deb stable main" | sudo tee -a /etc/apt/sources.list.d/falcosecurity.list
-sudo apt-get update -y
-
-
-
-
-
-tput setaf 6
-echo -e "\n \n*******************************************************************************************************************"
-echo -e "Adding Linux Headers - If you are not using Ubuntu, you will need to add the headers to your deployment manually"
-echo -e "*******************************************************************************************************************"
-tput setaf 2
-sudo apt-get install -y falco
-sudo systemctl start falco
-sudo systemctl enable falco
-
-
 tput setaf 6
 echo -e "\n \n*******************************************************************************************************************"
 echo -e "Installing and enabling falco"
@@ -58,7 +33,7 @@ echo -e "\n \n******************************************************************
 echo -e "Deploying Falco with EBPF enabled"
 echo -e "*******************************************************************************************************************"
 tput setaf 2
-helm install falco falcosecurity/falco -f values-falco.yaml -f custom-nginx.yaml --namespace falco
+helm install falco falcosecurity/falco -f values-falco.yaml -f custom-nginx.yaml --namespace falco --version 1.18.6
 
 
 tput setaf 3
