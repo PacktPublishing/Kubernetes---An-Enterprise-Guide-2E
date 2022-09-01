@@ -36,10 +36,10 @@ echo "sleeping 10 seconds"
 sleep 10s
 
 
-kubectl create -f ../../chapter9/multi-tenant/yaml/require-psp-for-namespace-constrainttemplate.yaml
+kubectl create -f ../../chapter9/multi-tenant/yaml/require-psp-for-namespaceconstrainttemplate.yaml
 
 echo "sleeping 10 seconds"
 sleep 10s
 
 
-kubectl create -f ../../chapter9/multi-tenant/yaml/require-psp-for-namespace-constraint.yaml
+kubectl create -f ../../chapter9/multi-tenant/yaml/require-psp-for-namespaceconstraint.yaml
