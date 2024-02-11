@@ -1,0 +1,22 @@
+version: '3.1'
+
+services:
+
+  web-server-1:
+    image: bitnami/nginx
+    container_name: web-server-1
+    volumes:
+      - webdata:/opt/web/data
+  web-server-2:
+    image: bitnami/nginx
+    container_name: web-server-2
+    volumes:
+      - webdata:/opt/web/data
+  web-server-3:
+    image: bitnami/nginx
+    container_name: web-server-3
+    volumes:
+      - webdata:/opt/web/data
+
+volumes:
+  webdata:
